@@ -50,10 +50,10 @@ python run_3dhp.py -f 1 -b 160 --train 1 --lr 0.0007 -lrd 0.97
 ## Evaluation
 | Dataset  | Depth model | Checkpoint|
 |----------|---------------|-----------|
-|Human3.6M|Depth-Anythingv2-l|[download](https://drive.google.com/file/d/1o6n5RDo2OYpjh5pascBcR5cR6PjL1Y0y/view?usp=drive_link)|
-|Human3.6M|Depth-Anythingv2-b|[download](https://drive.google.com/file/d/1qG7QbigtKTCHxvd-mRaEM4anpPW2vp3m/view?usp=drive_link)|
-|Human3.6M|Depth-Anythingv2-s|[download](https://drive.google.com/file/d/1vnRgZxkcPQ7qPwV3gJXpZ2CWXyUW1wpW/view?usp=drive_link)|
-|MPI-INF-3DHP|Depth-Anythingv2-b|[download](https://drive.google.com/file/d/1Pkqc1j5xxSRsJYCqC1JE1GIMevuQQp_o/view?usp=drive_link)|
+|Human3.6M|Depth-Anythingv2-l|[download](https://drive.google.com/file/d/1Fz8L1cfM5iN4EqgNSlmKjtbJydQr-bjS/view?usp=drive_link)|
+|Human3.6M|Depth-Anythingv2-b|[download](https://drive.google.com/file/d/1NwRxJWq8f1SQBNB_X-vkH58u5w8LhiM5/view?usp=drive_link)|
+|Human3.6M|Depth-Anythingv2-s|[download](https://drive.google.com/file/d/1GoD_rC3qCZmmbhC2zPZ-UNCZ9JQdtmkH/view?usp=drive_link)|
+|MPI-INF-3DHP|Depth-Anythingv2-b|[download](https://drive.google.com/file/d/1G8ub9_MwMHdkvzSqsWHaHq9iyH37tQON/view?usp=drive_link)|
 
 
 

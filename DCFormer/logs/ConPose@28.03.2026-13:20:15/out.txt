@@ -1,0 +1,4 @@
+Trainable parameter count: [20422389]
+Gradient accumulation steps: [1]
+[1] time 30.52 lr 0.000640 3d_train 63.218287 3d_test_p1 45.600000 3d_test_p2 37.900000
+save best checkpoint 

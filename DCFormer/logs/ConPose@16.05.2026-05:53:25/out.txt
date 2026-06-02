@@ -1,0 +1,88 @@
+Trainable parameter count: [20721405]
+[train diagnostics] order_loss 0.250037 ude_loss 4.370366 dlst_rel_sign_acc 0.905640 dlst_assign_entropy 0.468677 dlst_layer_usage_min 0.193870 dlst_layer_usage_max 0.303836
+[val diagnostics] order_loss 0.189629 ude_loss 3.548825 dlst_rel_sign_acc 0.938637 dlst_assign_entropy 0.361426 dlst_layer_usage_min 0.202451 dlst_layer_usage_max 0.296312
+[1] time 55.72 lr 0.000640 3d_train 64.756999 3d_test_p1 45.700000 3d_test_p2 37.200000
+save best checkpoint 
+[train diagnostics] order_loss 0.175175 ude_loss 3.510044 dlst_rel_sign_acc 0.944973 dlst_assign_entropy 0.364291 dlst_layer_usage_min 0.216578 dlst_layer_usage_max 0.281290
+[val diagnostics] order_loss 0.177606 ude_loss 3.386650 dlst_rel_sign_acc 0.944245 dlst_assign_entropy 0.341576 dlst_layer_usage_min 0.191784 dlst_layer_usage_max 0.298984
+[2] time 56.31 lr 0.000634 3d_train 29.920157 3d_test_p1 42.600000 3d_test_p2 34.900000
+save best checkpoint 
+[train diagnostics] order_loss 0.165994 ude_loss 3.397361 dlst_rel_sign_acc 0.949598 dlst_assign_entropy 0.358532 dlst_layer_usage_min 0.221123 dlst_layer_usage_max 0.276700
+[val diagnostics] order_loss 0.168019 ude_loss 3.353382 dlst_rel_sign_acc 0.948664 dlst_assign_entropy 0.339929 dlst_layer_usage_min 0.205897 dlst_layer_usage_max 0.292185
+[3] time 55.62 lr 0.000627 3d_train 24.316463 3d_test_p1 40.600000 3d_test_p2 33.800000
+save best checkpoint 
+[train diagnostics] order_loss 0.160396 ude_loss 3.303111 dlst_rel_sign_acc 0.952595 dlst_assign_entropy 0.356397 dlst_layer_usage_min 0.223588 dlst_layer_usage_max 0.275232
+[val diagnostics] order_loss 0.169376 ude_loss 3.258722 dlst_rel_sign_acc 0.947538 dlst_assign_entropy 0.340999 dlst_layer_usage_min 0.205686 dlst_layer_usage_max 0.293166
+[4] time 55.13 lr 0.000621 3d_train 21.237577 3d_test_p1 41.000000 3d_test_p2 33.600000
+[train diagnostics] order_loss 0.155890 ude_loss 3.231704 dlst_rel_sign_acc 0.954998 dlst_assign_entropy 0.352035 dlst_layer_usage_min 0.224697 dlst_layer_usage_max 0.274862
+[val diagnostics] order_loss 0.166973 ude_loss 3.213884 dlst_rel_sign_acc 0.949001 dlst_assign_entropy 0.341098 dlst_layer_usage_min 0.206181 dlst_layer_usage_max 0.291108
+[5] time 55.99 lr 0.000615 3d_train 19.431367 3d_test_p1 39.700000 3d_test_p2 32.900000
+save best checkpoint 
+[train diagnostics] order_loss 0.152216 ude_loss 3.167089 dlst_rel_sign_acc 0.957009 dlst_assign_entropy 0.347511 dlst_layer_usage_min 0.224956 dlst_layer_usage_max 0.274947
+[val diagnostics] order_loss 0.159507 ude_loss 3.160559 dlst_rel_sign_acc 0.952998 dlst_assign_entropy 0.333530 dlst_layer_usage_min 0.206072 dlst_layer_usage_max 0.294674
+[6] time 54.88 lr 0.000609 3d_train 18.250566 3d_test_p1 39.800000 3d_test_p2 33.200000
+[train diagnostics] order_loss 0.149496 ude_loss 3.096731 dlst_rel_sign_acc 0.958560 dlst_assign_entropy 0.344256 dlst_layer_usage_min 0.225324 dlst_layer_usage_max 0.275254
+[val diagnostics] order_loss 0.162164 ude_loss 3.112504 dlst_rel_sign_acc 0.951300 dlst_assign_entropy 0.337937 dlst_layer_usage_min 0.209429 dlst_layer_usage_max 0.290292
+[7] time 54.59 lr 0.000603 3d_train 17.414530 3d_test_p1 40.200000 3d_test_p2 32.900000
+[train diagnostics] order_loss 0.147314 ude_loss 2.990015 dlst_rel_sign_acc 0.959782 dlst_assign_entropy 0.341006 dlst_layer_usage_min 0.225062 dlst_layer_usage_max 0.275322
+[val diagnostics] order_loss 0.159269 ude_loss 2.985060 dlst_rel_sign_acc 0.952991 dlst_assign_entropy 0.335379 dlst_layer_usage_min 0.208132 dlst_layer_usage_max 0.292290
+[8] time 55.88 lr 0.000597 3d_train 16.760726 3d_test_p1 39.700000 3d_test_p2 32.700000
+[train diagnostics] order_loss 0.145985 ude_loss 2.894011 dlst_rel_sign_acc 0.960549 dlst_assign_entropy 0.340125 dlst_layer_usage_min 0.226006 dlst_layer_usage_max 0.274721
+[val diagnostics] order_loss 0.154933 ude_loss 2.903754 dlst_rel_sign_acc 0.955396 dlst_assign_entropy 0.317987 dlst_layer_usage_min 0.209028 dlst_layer_usage_max 0.290547
+[9] time 55.16 lr 0.000591 3d_train 16.303941 3d_test_p1 39.600000 3d_test_p2 32.300000
+save best checkpoint 
+[train diagnostics] order_loss 0.144553 ude_loss 2.827589 dlst_rel_sign_acc 0.961343 dlst_assign_entropy 0.338550 dlst_layer_usage_min 0.225537 dlst_layer_usage_max 0.275316
+[val diagnostics] order_loss 0.159477 ude_loss 2.859461 dlst_rel_sign_acc 0.952455 dlst_assign_entropy 0.320833 dlst_layer_usage_min 0.204580 dlst_layer_usage_max 0.292122
+[10] time 54.79 lr 0.000585 3d_train 15.914872 3d_test_p1 40.200000 3d_test_p2 32.900000
+[train diagnostics] order_loss 0.143763 ude_loss 2.773380 dlst_rel_sign_acc 0.961765 dlst_assign_entropy 0.338011 dlst_layer_usage_min 0.226246 dlst_layer_usage_max 0.274698
+[val diagnostics] order_loss 0.155025 ude_loss 2.840569 dlst_rel_sign_acc 0.955598 dlst_assign_entropy 0.323083 dlst_layer_usage_min 0.218031 dlst_layer_usage_max 0.281608
+[11] time 54.61 lr 0.000579 3d_train 15.577861 3d_test_p1 38.800000 3d_test_p2 32.200000
+save best checkpoint 
+[train diagnostics] order_loss 0.143028 ude_loss 2.741599 dlst_rel_sign_acc 0.962193 dlst_assign_entropy 0.337727 dlst_layer_usage_min 0.226002 dlst_layer_usage_max 0.274660
+[val diagnostics] order_loss 0.155745 ude_loss 2.818184 dlst_rel_sign_acc 0.954969 dlst_assign_entropy 0.331518 dlst_layer_usage_min 0.213345 dlst_layer_usage_max 0.289808
+[12] time 54.69 lr 0.000573 3d_train 15.318554 3d_test_p1 39.400000 3d_test_p2 32.600000
+[train diagnostics] order_loss 0.142065 ude_loss 2.710590 dlst_rel_sign_acc 0.962694 dlst_assign_entropy 0.337141 dlst_layer_usage_min 0.226676 dlst_layer_usage_max 0.274493
+[val diagnostics] order_loss 0.158041 ude_loss 2.859123 dlst_rel_sign_acc 0.953498 dlst_assign_entropy 0.325905 dlst_layer_usage_min 0.210828 dlst_layer_usage_max 0.288638
+[13] time 54.78 lr 0.000567 3d_train 15.051671 3d_test_p1 39.600000 3d_test_p2 32.300000
+[train diagnostics] order_loss 0.141375 ude_loss 2.692093 dlst_rel_sign_acc 0.963133 dlst_assign_entropy 0.335968 dlst_layer_usage_min 0.226391 dlst_layer_usage_max 0.274485
+[val diagnostics] order_loss 0.159590 ude_loss 2.775626 dlst_rel_sign_acc 0.952526 dlst_assign_entropy 0.329504 dlst_layer_usage_min 0.212324 dlst_layer_usage_max 0.285588
+[14] time 54.63 lr 0.000562 3d_train 14.839766 3d_test_p1 40.300000 3d_test_p2 32.800000
+[train diagnostics] order_loss 0.140854 ude_loss 2.674625 dlst_rel_sign_acc 0.963411 dlst_assign_entropy 0.335881 dlst_layer_usage_min 0.226640 dlst_layer_usage_max 0.274287
+[val diagnostics] order_loss 0.156941 ude_loss 2.752149 dlst_rel_sign_acc 0.954428 dlst_assign_entropy 0.319307 dlst_layer_usage_min 0.205378 dlst_layer_usage_max 0.296405
+[15] time 54.68 lr 0.000556 3d_train 14.633724 3d_test_p1 39.200000 3d_test_p2 32.400000
+[train diagnostics] order_loss 0.140316 ude_loss 2.655337 dlst_rel_sign_acc 0.963713 dlst_assign_entropy 0.336274 dlst_layer_usage_min 0.227178 dlst_layer_usage_max 0.274011
+[val diagnostics] order_loss 0.161739 ude_loss 2.831026 dlst_rel_sign_acc 0.951996 dlst_assign_entropy 0.312233 dlst_layer_usage_min 0.212901 dlst_layer_usage_max 0.286853
+[16] time 54.88 lr 0.000550 3d_train 14.479958 3d_test_p1 40.000000 3d_test_p2 32.300000
+[train diagnostics] order_loss 0.139922 ude_loss 2.641410 dlst_rel_sign_acc 0.963927 dlst_assign_entropy 0.336179 dlst_layer_usage_min 0.227175 dlst_layer_usage_max 0.274231
+[val diagnostics] order_loss 0.156644 ude_loss 2.743407 dlst_rel_sign_acc 0.954201 dlst_assign_entropy 0.323659 dlst_layer_usage_min 0.214941 dlst_layer_usage_max 0.287287
+[17] time 54.40 lr 0.000545 3d_train 14.320514 3d_test_p1 39.800000 3d_test_p2 32.400000
+[train diagnostics] order_loss 0.139529 ude_loss 2.626749 dlst_rel_sign_acc 0.964132 dlst_assign_entropy 0.335522 dlst_layer_usage_min 0.226941 dlst_layer_usage_max 0.274451
+[val diagnostics] order_loss 0.152276 ude_loss 2.691487 dlst_rel_sign_acc 0.957073 dlst_assign_entropy 0.318905 dlst_layer_usage_min 0.211027 dlst_layer_usage_max 0.289105
+[18] time 54.23 lr 0.000539 3d_train 14.154026 3d_test_p1 38.900000 3d_test_p2 32.000000
+[train diagnostics] order_loss 0.139068 ude_loss 2.613896 dlst_rel_sign_acc 0.964404 dlst_assign_entropy 0.335213 dlst_layer_usage_min 0.227017 dlst_layer_usage_max 0.274166
+[val diagnostics] order_loss 0.154600 ude_loss 2.755459 dlst_rel_sign_acc 0.955736 dlst_assign_entropy 0.321179 dlst_layer_usage_min 0.215721 dlst_layer_usage_max 0.284557
+[19] time 54.31 lr 0.000534 3d_train 14.020293 3d_test_p1 39.600000 3d_test_p2 32.600000
+[train diagnostics] order_loss 0.138762 ude_loss 2.600805 dlst_rel_sign_acc 0.964580 dlst_assign_entropy 0.335389 dlst_layer_usage_min 0.227108 dlst_layer_usage_max 0.274326
+[val diagnostics] order_loss 0.147988 ude_loss 2.692049 dlst_rel_sign_acc 0.959185 dlst_assign_entropy 0.323281 dlst_layer_usage_min 0.212085 dlst_layer_usage_max 0.291095
+[20] time 54.40 lr 0.000529 3d_train 13.886279 3d_test_p1 39.300000 3d_test_p2 32.200000
+[train diagnostics] order_loss 0.138408 ude_loss 2.589620 dlst_rel_sign_acc 0.964789 dlst_assign_entropy 0.335535 dlst_layer_usage_min 0.227408 dlst_layer_usage_max 0.274312
+[val diagnostics] order_loss 0.153247 ude_loss 2.645189 dlst_rel_sign_acc 0.956669 dlst_assign_entropy 0.320818 dlst_layer_usage_min 0.213428 dlst_layer_usage_max 0.287670
+[21] time 54.88 lr 0.000523 3d_train 13.760128 3d_test_p1 39.900000 3d_test_p2 32.600000
+[train diagnostics] order_loss 0.138014 ude_loss 2.578502 dlst_rel_sign_acc 0.964984 dlst_assign_entropy 0.334363 dlst_layer_usage_min 0.227089 dlst_layer_usage_max 0.274189
+[val diagnostics] order_loss 0.151654 ude_loss 2.683587 dlst_rel_sign_acc 0.957224 dlst_assign_entropy 0.326193 dlst_layer_usage_min 0.210393 dlst_layer_usage_max 0.287216
+[22] time 54.82 lr 0.000518 3d_train 13.647577 3d_test_p1 39.500000 3d_test_p2 32.500000
+[train diagnostics] order_loss 0.137699 ude_loss 2.566209 dlst_rel_sign_acc 0.965171 dlst_assign_entropy 0.334385 dlst_layer_usage_min 0.227442 dlst_layer_usage_max 0.273724
+[val diagnostics] order_loss 0.151980 ude_loss 2.698337 dlst_rel_sign_acc 0.957698 dlst_assign_entropy 0.323817 dlst_layer_usage_min 0.215467 dlst_layer_usage_max 0.283333
+[23] time 54.94 lr 0.000513 3d_train 13.531479 3d_test_p1 40.000000 3d_test_p2 32.400000
+[train diagnostics] order_loss 0.137518 ude_loss 2.555377 dlst_rel_sign_acc 0.965273 dlst_assign_entropy 0.334726 dlst_layer_usage_min 0.227771 dlst_layer_usage_max 0.273692
+[val diagnostics] order_loss 0.154573 ude_loss 2.656865 dlst_rel_sign_acc 0.956002 dlst_assign_entropy 0.323417 dlst_layer_usage_min 0.207230 dlst_layer_usage_max 0.291042
+[24] time 55.06 lr 0.000508 3d_train 13.427753 3d_test_p1 39.800000 3d_test_p2 32.500000
+[train diagnostics] order_loss 0.137094 ude_loss 2.550873 dlst_rel_sign_acc 0.965493 dlst_assign_entropy 0.333956 dlst_layer_usage_min 0.227607 dlst_layer_usage_max 0.273842
+[val diagnostics] order_loss 0.152073 ude_loss 2.673471 dlst_rel_sign_acc 0.956942 dlst_assign_entropy 0.313633 dlst_layer_usage_min 0.209151 dlst_layer_usage_max 0.288657
+[25] time 55.28 lr 0.000503 3d_train 13.343699 3d_test_p1 39.400000 3d_test_p2 32.200000
+[train diagnostics] order_loss 0.136891 ude_loss 2.540925 dlst_rel_sign_acc 0.965644 dlst_assign_entropy 0.333710 dlst_layer_usage_min 0.227499 dlst_layer_usage_max 0.273921
+[val diagnostics] order_loss 0.154188 ude_loss 2.627868 dlst_rel_sign_acc 0.955714 dlst_assign_entropy 0.320680 dlst_layer_usage_min 0.209120 dlst_layer_usage_max 0.287705
+[26] time 55.00 lr 0.000498 3d_train 13.229534 3d_test_p1 40.300000 3d_test_p2 32.800000
+[train diagnostics] order_loss 0.136670 ude_loss 2.534510 dlst_rel_sign_acc 0.965698 dlst_assign_entropy 0.333145 dlst_layer_usage_min 0.227870 dlst_layer_usage_max 0.273372
+[val diagnostics] order_loss 0.150415 ude_loss 2.608645 dlst_rel_sign_acc 0.958356 dlst_assign_entropy 0.311531 dlst_layer_usage_min 0.208566 dlst_layer_usage_max 0.290510
+[27] time 55.52 lr 0.000493 3d_train 13.138752 3d_test_p1 40.000000 3d_test_p2 32.400000

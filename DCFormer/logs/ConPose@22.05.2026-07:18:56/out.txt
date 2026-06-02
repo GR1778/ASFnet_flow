@@ -1,0 +1,2 @@
+Trainable parameter count: [20770685]
+[train diagnostics] order_loss 0.271669 ude_loss 4.735085 dlst_rel_sign_acc 0.893770 dlst_assign_entropy 0.493031 dlst_layer_usage_min 0.186241 dlst_layer_usage_max 0.315639

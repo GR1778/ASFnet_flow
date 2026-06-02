@@ -1,0 +1,2 @@
+Trainable parameter count: [20771581]
+[val diagnostics] order_loss 0.694946 ude_loss 216.869574 dlst_rel_sign_acc 0.491490 dlst_assign_entropy 0.995070 dlst_layer_usage_min 0.216504 dlst_layer_usage_max 0.277687

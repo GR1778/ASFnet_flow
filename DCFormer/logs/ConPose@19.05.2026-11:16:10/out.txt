@@ -1,0 +1,5 @@
+Trainable parameter count: [20721405]
+[train diagnostics] order_loss 0.438713 ude_loss 6.299103 dlst_rel_sign_acc 0.790302 dlst_assign_entropy 0.569636 dlst_layer_usage_min 0.119126 dlst_layer_usage_max 0.418581
+[val diagnostics] order_loss 0.388778 ude_loss 4.507456 dlst_rel_sign_acc 0.823062 dlst_assign_entropy 0.447085 dlst_layer_usage_min 0.093328 dlst_layer_usage_max 0.443935
+[1] time 49.46 lr 0.000640 3d_train 104.495711 3d_test_p1 54.100000 3d_test_p2 42.600000
+save best checkpoint 

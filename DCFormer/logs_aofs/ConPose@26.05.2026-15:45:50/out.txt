@@ -1,0 +1,20 @@
+Trainable parameter count: [20026819]
+[1] time 128.56 lr 0.000640 3d_train 52.823677 3d_test_p1 43.300000 3d_test_p2 36.200000
+save best checkpoint 
+[2] time 87.53 lr 0.000634 3d_train 27.559307 3d_test_p1 42.100000 3d_test_p2 35.000000
+save best checkpoint 
+[3] time 85.00 lr 0.000627 3d_train 23.507052 3d_test_p1 40.900000 3d_test_p2 34.300000
+save best checkpoint 
+[4] time 84.57 lr 0.000621 3d_train 21.533375 3d_test_p1 41.800000 3d_test_p2 34.300000
+[5] time 84.04 lr 0.000615 3d_train 20.333508 3d_test_p1 40.900000 3d_test_p2 33.800000
+[6] time 84.16 lr 0.000609 3d_train 19.520435 3d_test_p1 41.400000 3d_test_p2 34.100000
+[7] time 84.25 lr 0.000603 3d_train 18.902290 3d_test_p1 41.300000 3d_test_p2 33.800000
+[8] time 86.87 lr 0.000597 3d_train 18.420821 3d_test_p1 41.600000 3d_test_p2 33.900000
+[9] time 93.24 lr 0.000591 3d_train 18.022109 3d_test_p1 40.400000 3d_test_p2 33.300000
+save best checkpoint 
+[10] time 101.62 lr 0.000585 3d_train 17.677562 3d_test_p1 41.100000 3d_test_p2 33.600000
+[11] time 104.38 lr 0.000579 3d_train 17.369996 3d_test_p1 41.000000 3d_test_p2 33.700000
+[12] time 88.63 lr 0.000573 3d_train 17.107666 3d_test_p1 40.800000 3d_test_p2 33.600000
+[13] time 86.29 lr 0.000567 3d_train 16.850986 3d_test_p1 41.300000 3d_test_p2 33.700000
+[14] time 88.14 lr 0.000562 3d_train 16.656801 3d_test_p1 41.700000 3d_test_p2 33.900000
+[15] time 86.37 lr 0.000556 3d_train 16.451631 3d_test_p1 41.500000 3d_test_p2 33.800000

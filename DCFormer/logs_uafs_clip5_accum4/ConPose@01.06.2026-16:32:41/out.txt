@@ -1,0 +1,6 @@
+Trainable parameter count: [19926223]
+[1] time 189.32 lr 0.000640 3d_train 63.445503 3d_test_p1 47.200000 3d_test_p2 38.800000
+save best checkpoint 
+[2] time 244.14 lr 0.000634 3d_train 30.031867 3d_test_p1 43.100000 3d_test_p2 35.700000
+save best checkpoint 
+[3] time 191.98 lr 0.000627 3d_train 24.535798 3d_test_p1 43.400000 3d_test_p2 34.900000

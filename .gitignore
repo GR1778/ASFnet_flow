@@ -25,16 +25,28 @@ checkpoints/
 DCFormer/data/
 DCFormer_mpi/data/
 
-# Analysis output / experiment runs
-DCFormer/depth_analysis/
-DCFormer/depth_analysis_*/
+# Analysis generated outputs (images, data files)
+DCFormer/analysis/*/figures/
+DCFormer/analysis/*/images/
 DCFormer/debug_vis/
-DCFormer/dlst_motivation_*/
-DCFormer/dlst_visualizations_*/
-DCFormer/dlst_training_signal_current/
 DCFormer/output/
 DCFormer/tmp_asfnet_figs/
 DCFormer/imagegen/
+
+# Training logs — checkpoints excluded by *.bin + checkpoints/ above
+# Only out.txt, config.yaml, tb/ (TensorBoard) are uploaded
+DCFormer/logs/*/checkpoints/
+
+# Temp / scratch directories
+DCFormer/tmp_*/
+DCFormer/tmp_asfnet_pdf_text*.txt
+
+# Backup files
+*.bak
+
+# Paper reference (optional, large)
+DCFormer/paper/
+DCFormer/paper.txt
 
 # Compressed archives
 *.zip
@@ -81,6 +93,7 @@ config.ini
 # Symlinks (external repos)
 /depth_anything
 /depth_anything_v2
+DCFormer/mvn/H36M-Toolbox
 
 # Claude Code config
 /.claude/

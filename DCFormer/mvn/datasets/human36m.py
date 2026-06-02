@@ -39,6 +39,23 @@ retval = {
 joints_left = [4, 5, 6, 11, 12, 13] 
 joints_right = [1, 2, 3, 14, 15, 16]
 
+
+def load_depth_image(depth_image_dir, image_path, depth_format="image"):
+    if depth_format in ("npy", "flow_npy"):
+        depth_path = os.path.join(depth_image_dir, os.path.splitext(image_path)[0] + ".npy")
+        if not os.path.exists(depth_path):
+            raise FileNotFoundError("Auxiliary npy not found: {}".format(depth_path))
+        aux = np.load(depth_path).astype(np.float32, copy=False)
+        if depth_format == "flow_npy" and (aux.ndim != 3 or aux.shape[-1] != 2):
+            raise ValueError("Expected flow npy with shape [H, W, 2], got {} at {}".format(aux.shape, depth_path))
+        return aux
+
+    depth_path = os.path.join(depth_image_dir, image_path)
+    depth_image = cv2.imread(depth_path, cv2.IMREAD_GRAYSCALE | cv2.IMREAD_IGNORE_ORIENTATION)
+    if depth_image is None:
+        raise FileNotFoundError("Auxiliary image not found or unreadable: {}".format(depth_path))
+    return depth_image
+
 class Human36MKeypointDataset(Dataset):
     """
         Human3.6M for multiview tasks.
@@ -169,6 +186,7 @@ class Human36MMultiViewDataset(Dataset):
                  root='/Vol1/dbstore/datasets/Human3.6M/processed/',
                  labels_path='/Vol1/dbstore/datasets/Human3.6M/extra/human36m-multiview-labels-SSDbboxes.npy',
                  depth_image_path = '../H36M-Toolbox/depth_images_RGB/',
+                 flow_image_path = None,
                  pred_results_path=None,
                  image_shape=(192, 256),
                  train=False,
@@ -184,6 +202,8 @@ class Human36MMultiViewDataset(Dataset):
                  crop=True,
                  erase=False,
                  data_format='',
+                 depth_format='image',
+                 flow_format='flow_npy',
                  frame=1
                  ):
         """
@@ -211,6 +231,7 @@ class Human36MMultiViewDataset(Dataset):
         self.root = root
         self.labels_path = labels_path
         self.depth_image_dir = depth_image_path
+        self.flow_image_dir = flow_image_path
         self.image_shape = None if image_shape is None else tuple(image_shape)
         self.test = test
         self.scale_bbox = scale_bbox
@@ -222,6 +243,8 @@ class Human36MMultiViewDataset(Dataset):
         self.crop = crop
         self.erase = erase
         self.data_format = data_format
+        self.depth_format = depth_format
+        self.flow_format = flow_format
         self.actual_joints = {
             0: "rank",
             1: "rkne",
@@ -300,9 +323,10 @@ class Human36MMultiViewDataset(Dataset):
             os.path.join(image_dir, image_path), cv2.IMREAD_COLOR | cv2.IMREAD_IGNORE_ORIENTATION
             )#[..., ::-1]#.astype('float32')
 
-        depth_image = cv2.imread(
-            os.path.join(depth_image_dir, image_path), cv2.IMREAD_GRAYSCALE | cv2.IMREAD_IGNORE_ORIENTATION
-            )
+        depth_image = load_depth_image(depth_image_dir, image_path, self.depth_format)
+        if self.flow_image_dir is not None:
+            flow_image = load_depth_image(self.flow_image_dir, image_path, self.flow_format)
+            return image, np.expand_dims(shot['joints_3d'], axis=0), shot['joints_2d_cpn'], shot['joints_2d_cpn_crop'], depth_image, flow_image
 
         # if self.crop:
             # crop image
@@ -428,7 +452,7 @@ class Human36MMultiViewDataset(Dataset):
         return action_scores
 
     def evaluate(self, keypoints_gt, keypoints_3d_predicted, proj_matricies_batch=None, config=None,  split_by_subject=False, transfer_cmu_to_human36m=False, transfer_human36m_to_human36m=False):
-        np.savez("files.npz", keypoints_3d_predicted.cpu().numpy(), self.video_idx)
+        # np.savez("files.npz", keypoints_3d_predicted.cpu().numpy(), self.video_idx)
         #keypoints_gt = self.labels['table']['keypoints'][:, :self.num_keypoints]
         if keypoints_3d_predicted.shape != keypoints_gt.shape:
             raise ValueError(
@@ -493,6 +517,7 @@ class Human36MSingleViewDataset(Human36MMultiViewDataset):
                  root='/Vol1/dbstore/datasets/Human3.6M/processed/',
                  labels_path='/Vol1/dbstore/datasets/Human3.6M/extra/human36m-multiview-labels-SSDbboxes.npy',
                  depth_image_path = '../H36M-Toolbox/depth_images_RGB/',
+                 flow_image_path = None,
                  pred_results_path=None,
                  image_shape=(192, 256),
                  train=False,
@@ -510,12 +535,15 @@ class Human36MSingleViewDataset(Human36MMultiViewDataset):
                  rank = None,
                  world_size = None,
                  data_format='',
+                 depth_format='image',
+                 flow_format='flow_npy',
                  frame=1
                  ):
         super(Human36MSingleViewDataset, self).__init__(
             root=root,
             labels_path=labels_path,
             depth_image_path = depth_image_path,
+            flow_image_path = flow_image_path,
             pred_results_path=pred_results_path,
             image_shape=image_shape,
             train=train,
@@ -530,7 +558,9 @@ class Human36MSingleViewDataset(Human36MMultiViewDataset):
             ignore_cameras=ignore_cameras,
             crop=crop,
             erase=erase,
-            data_format=data_format
+            data_format=data_format,
+            depth_format=depth_format,
+            flow_format=flow_format
         )
 
         self.pred_results_path = pred_results_path
@@ -576,15 +606,13 @@ class Human36MSingleViewDataset(Human36MMultiViewDataset):
             os.path.join(image_dir, image_path), cv2.IMREAD_COLOR | cv2.IMREAD_IGNORE_ORIENTATION
             )#[..., ::-1]#.astype('float32')
 
-        depth_image = cv2.imread(
-            os.path.join(depth_image_dir, image_path), cv2.IMREAD_GRAYSCALE | cv2.IMREAD_IGNORE_ORIENTATION
-            )
+        depth_image = load_depth_image(depth_image_dir, image_path, self.depth_format)
+        if self.flow_image_dir is not None:
+            flow_image = load_depth_image(self.flow_image_dir, image_path, self.flow_format)
+            return image, np.expand_dims(shot['joints_3d'], axis=0), shot['joints_2d_cpn'], shot['joints_2d_cpn_crop'], depth_image, flow_image
 
         # if self.crop:
             # crop image
             # image = crop_image(image, shot['center'], shot['scale'], self.image_shape) # (256, 192, 3) uint8
 
         return image, np.expand_dims(shot['joints_3d'], axis=0), shot['joints_2d_cpn'], shot['joints_2d_cpn_crop'], depth_image
-
-
-

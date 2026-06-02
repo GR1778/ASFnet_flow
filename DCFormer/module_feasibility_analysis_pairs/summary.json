@@ -1,0 +1,61 @@
+{
+  "num_samples": 128,
+  "joint_depth_signal": {
+    "pairwise_sign_acc_direct": 0.39510569852941174,
+    "pairwise_sign_acc_inverse": 0.6023667279411765,
+    "pairwise_sign_acc_best_orientation": 0.6023667279411765,
+    "within_sample_spearman_mean": -0.2727304013557412,
+    "within_sample_abs_pearson_mean": 0.346702711932973,
+    "verdict": "moderate"
+  },
+  "bone_surface_signal": {
+    "pairwise_bone_order_acc_direct": 0.49830729166666665,
+    "pairwise_bone_order_acc_inverse": 0.5016927083333333,
+    "pairwise_bone_order_acc_best_orientation": 0.5016927083333333,
+    "within_sample_bone_spearman_mean": -0.02134650735294117,
+    "depth_range_vs_gt_bone_z_span_spearman": 0.09818830042614914,
+    "depth_std_vs_gt_bone_z_span_spearman": 0.13068599044775667,
+    "verdict": "weak"
+  },
+  "occlusion_crossing_signal": {
+    "num_candidate_crossings": 1764,
+    "pairwise_order_acc_direct": 0.41723356009070295,
+    "pairwise_order_acc_inverse": 0.5827664399092971,
+    "pairwise_order_acc_best_orientation": 0.5827664399092971,
+    "delta_spearman_abs": 0.2649026534911926,
+    "mean_depth_range_at_crossings": 0.08820282544543684,
+    "verdict": "weak"
+  },
+  "near_joint_pair_signal": {
+    "16px": {
+      "num_pairs": 1656,
+      "best_order_acc": 0.6509661835748792,
+      "delta_spearman_abs": 0.4079951752660687
+    },
+    "24px": {
+      "num_pairs": 3147,
+      "best_order_acc": 0.6374324753733714,
+      "delta_spearman_abs": 0.34963227564035554
+    },
+    "32px": {
+      "num_pairs": 5062,
+      "best_order_acc": 0.6380877123666535,
+      "delta_spearman_abs": 0.3207309831706953
+    },
+    "48px": {
+      "num_pairs": 8152,
+      "best_order_acc": 0.6283120706575074,
+      "delta_spearman_abs": 0.32153109800506663
+    },
+    "64px": {
+      "num_pairs": 10691,
+      "best_order_acc": 0.6353942568515574,
+      "delta_spearman_abs": 0.35165134250081564
+    }
+  },
+  "scheme_recommendation": {
+    "skeleton_depth_surface_reasoner": "medium",
+    "depth_pose_cycle_consistency": "high",
+    "occlusion_aware_relative_depth_graph": "medium"
+  }
+}

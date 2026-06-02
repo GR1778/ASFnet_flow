@@ -1,0 +1,291 @@
+the face of estimation errors.
+   Finally, a Transformer-based fusion regressor integrates the refined multi-
+modal features for 3D pose estimation. Notably, the proposed AMS and
+UDE modules are highly modular and flexible, and can be readily integrated
+into existing lifting-based frameworks, including both single-frame and multi-
+frame variants. The efficacy of our depth-aware approach is demonstrated
+in our experiments. Our framework not only sets a new state-of-the-art on
+benchmark datasets, outperforming existing lifting-based and fusion meth-
+ods, but also delivers a critical practical advantage: it exhibits remarkable
+robustness, significantly mitigating the performance penalty typically associ-
+ated with using efficient, low-precision depth estimators. These gains quanti-
+tatively validate that directly tackling the dual problems of spatial misalign-
+ment and depth noise is key to advancing depth-aware 3D pose estimation.
+The main contributions of this work are summarized as follows:
+
+   • A novel framework that synergistically combines adaptive sampling
+     with uncertainty-aware enhancement to address the core challenges in
+     depth-aware 3D pose estimation: spatial misalignment from imperfect
+     2D poses and inherent noise in depth maps.
+
+   • We introduce an Adaptive Multi-Sampling (AMS) module that progres-
+     sively refines sampling locations through iterative correction to extract
+     comprehensive pose-relevant features.
+
+   • We introduce an Uncertainty-aware Depth Enhancement (UDE) mod-
+     ule, which suppresses noise and enhances feature reliability by modeling
+     depth feature distributions with quantified uncertainty.
+
+   • Experiments on benchmark datasets for 3D human pose estimation,
+     i.e., Human3.6M [12] and MPI-INF-3DHP [13], demonstrate that ours
+
+                                      6
+     achieves competitive performance with state-of-the-art methods.
+
+
+2. Related Work
+
+   Recent deep learning methods for monocular 3D human pose estimation
+have advanced significantly. Early approaches followed two distinct paths:
+some [14] utilized depth cameras to estimate 3D poses from depth images, but
+their applicability was limited by hardware requirements; others [15] directly
+regressed 3D poses from RGB images, yet were constrained by available 3D
+motion capture data. With progress in 2D pose estimation [5, 16], the lifting
+paradigm—first estimating 2D poses then converting to 3D—has emerged as
+a prominent approach, simplifying the estimation pipeline.
+
+2.1. Lifting-based Methods
+
+   Lifting-based approaches simplify 3D pose estimation by leveraging off-
+the-shelf 2D pose detectors trained on diverse datasets and lifting their out-
+puts to 3D, a paradigm pioneered by [6]. To address depth ambiguity, meth-
+ods model spatio-temporal dependencies using LSTMs [17] and CNNs [18].
+Several works [8] further incorporate human skeletal constraints via graph
+neural networks. Recently, transformer-based methods [7] have gained sig-
+nificant attention, building on their success in vision tasks. The latest ad-
+vancement employs diffusion models, which learn valid 3D pose distributions
+to synthesize diverse samples. This powerful generative paradigm addresses
+data scarcity and poor generalization by serving as probabilistic data aug-
+mentors, enriching the training hypothesis space and enhancing robustness,
+particularly in low-data regimes. For example, some works [19, 20, 21] con-
+dition the reverse process on 2D keypoints for geometric consistency, while
+others [22, 23] embed anatomical priors for biomechanical feasibility. The
+
+
+                                      7
+framework has also been extended for zero-shot cross-domain generalization
+[24] and robust multi-frame video estimation [25].
+   Despite advances, methods relying solely on 2D poses face the ineluctable
+challenge of depth ambiguity. Our work directly addresses this by incorpo-
+rating explicit robust depth features to guide the lifting model.
+
+2.2. Fusion methods
+
+   Beyond mainstream approaches, some methods integrate 2D poses with
+image information to compensate for insufficient 2D cues. However, these
+methods face several limitations: some bypass established 2D detectors [26],
+increasing complexity while losing detector benefits; others employ subop-
+timal fusion strategies, such as segmenting local patches [27] or using data-
+sparse heatmaps [21]. While CA-PF [9] queries global features with 2D poses
+and PSTR [28] improves training, these methods still struggle with the inher-
+ent inverse problem and lack explicit depth cues from 2D-derived features.
+Other approaches explicitly target depth estimation: some design specialized
+modules for joint depth ranking [10], while [11] regresses depth from local
+patches via LSTM. Yet these methods suffer from limited accuracy due to
+simplistic fusion process and local processing. Alternatively, methods relying
+on depth camera datasets [29] face cost and generalization barriers, restrict-
+ing their applicability to general RGB imagery.
+   In contrast to prior works, our method delivers reliable depth cues for
+pose estimation without relying on depth cameras, achieved through an
+uncertainty-aware depth enhancement mechanism.
+
+
+
+
+                                      8
+                   Stage 1              {[ Hs×Ws×Cs]}Ss=1                                                     Transformer Regressor
+                                                                 Adaptive
+                                                               Multi-Sampling
+
+
+
+
+                                                                                     Multimodal Interaction
+
+
+
+
+                                                                                                                       Spatial Transformer
+                                                                                                                                                                        Final Estimation
+
+
+
+
+                                                                                                                                                 Regression Head
+                                                                   (AMS)
+
+
+
+
+                                                                                          Transformer
+            2D Pose             Pose
+                                                                Pose Embed
+            Estimator           Head
+                                                                                                                                                                                 L3D
+                                            [ J×2]
+                                                                                                                                                [ J×Cfuse]
+
+                                                                                                              [ J×1]
+              DepthAnything V2
+                                                                                     μ                                                       Depth
+
+
+
+
+                                                                                                                                                                   [ J×Cfuse]
+
+                                                                                                                                                                                Depth Feature
+                                                                                                                                                                                Enhancement
+                                                                                    Head                                                     Embed
+
+          Patch                                                  Adaptive                                     Ldepth
+                                 DPT
+                  Transformer                                  Multi-Sampling
+          Embed                  Head                                                s                                                Uncertainty
+                                                                   (AMS)                                                                                               C
+                                                                                    Head                      [ J×1]                   Mapper
+
+                                         [ H×W×Cfuse]
+                                                               Multi-Modal
+                                                            Feature Alignment     Uncertainty-aware Depth Enhancer (UDE)
+
+
+          ：Pre-trained and with weights frozen.                   ：Position embedding.                            C ：Concatenate.
+
+
+
+Figure 2: Overview of our Adaptive Sample and Fusion Network (ASFnet). The
+process begins by obtaining the 2D pose from a pre-trained 2D Pose Estimator and the
+depth map from a pre-trained Depth Estimator. Guided by the 2D pose, the Adaptive
+Multi-Sampling (AMS) module samples both image features and depth features from the
+RGB image features and the depth map. Since depth features often contain noise, the
+Uncertainty-aware Depth Enhancer (UDE) is applied to further refine and enhance them.
+Subsequently, the Multimodal Interaction Transformer fuses the embedded 2D pose fea-
+tures, image features, and the enhanced depth features. The combined features are then
+fed into a regressor to predict the final 3D human pose. Note that the Multimodal In-
+teraction Transformer is implemented using a vanilla Transformer architecture, and the
+depth estimator employed is the state-of-the-art DepthAnything V2.
+
+3. Method
+
+3.1. Overview
+   Figure 2 illustrates our overall framework, with key notations summarized
+in Table 1. Given RGB images I ∈ RB×H×W ×3 , we employ a pre-trained
+2D pose detector to extract: 2D poses p ∈ RB×J×2 and multi-scale image
+features {Hs ∈ RB×Hs ×Ws ×Cs }Ss=1 . A depth estimator extracts depth features
+D ∈ RB×H×W ×Cfuse . The Multi-Modal Feature Alignment module then aligns
+depth and image features with the 2D pose via Adaptive Multi-Sampling
+(AMS), extracting pose-related features while suppressing background. To
+mitigate depth noise, UDE enhances features by downweighting unreliable
+regions using confidence scores. Finally, the Transformer Regressor fuses all
+modalities via the Multimodal Interaction Transformer for final regression.
+
+                                                                 9
+               Table 1: Key mathematical notations used in our methodology.
+       Notation                 Description
+       J                        Number of human joints.
+       N1                       Number of sampling offsets (or weights) per head in the AMS module.
+       N2                       Number of heads in the AMS module.
+       Cfuse                    The channel dimension of feature representations.
+       S                        Number of multi-scale image feature sets extracted from the 2D pose detector.
+       H, W                     Height and width of the images.
+       P ∈ RB×J×2               The initial estimated 2D pose (pixel coordinates).
+       P′ ∈ RB×J×Cfuse          The embedded 2D pose features.
+       D ∈ RB×H×W ×Cfuse        The feature representation of the input depth map.
+       D′ ∈ RB×J×Cfuse          The initially sampled depth features at P.
+       ∆ ∈ RB×J×N2 ×N1 ×2       The learned sampling offsets in AMS.
+       W ∈ RB×J×N2 ×N1          The learned attention weights for the sampled points in AMS.
+       θo , θ w                 The offset and weight prediction heads (MLPs) in AMS.
+       Fd ∈ RB×J×Cfuse          The final, refined depth features output by the AMS module.
+       {Fs }S  s=1              The set of S image feature sets, where each Fs ∈ RB×J×Cfuse is obtained by
+                                applying the AMS module to image features from the 2D detector.
+       µj ∈ RB×1                The coarse estimated depth value for joint j. The vector µ ∈ RB×J×1 contains
+                                depth estimates for all joints.
+       sj ∈ RB×1                The log-variance for joint j in the UDE module. The vector s ∈ RB×J×1
+                                contains log-variances for all joints.
+       Headµ , Heads            MLP heads for predicting µj and sj in UDE.
+       Fcat
+        d   ∈ RB×J×(Cfuse ×3)   The concatenation of Fd , Headµ (µ) and Heads (s), serving as the input to the
+                                Depth Feature Enhancement in UDE.
+       e d ∈ RB×J×Cf use
+       F                        The enhanced depth features output by the UDE module.
+       F ∈ RB×J×(S+2)×Cf use    The stacked multi-modal features (P′ ,{Fs }S     e
+                                                                           s=1 , Fd ) for final pose regression.
+
+
+
+
+3.2. Adaptive Multi-Sampling (AMS)
+
+   The estimated depth and image feature maps encompass substantial back-
+ground information, introducing both interference and computational over-
+head. To address this, we align these maps with the 2D pose to extract
+pose-relevant information while suppressing background noise.
+   We employ grid sampling guided by 2D poses for initial alignment. How-
+ever, sole reliance on estimated 2D poses is suboptimal due to detector inac-
+curacies. We therefore propose the Adaptive Multi-Sampling (AMS) module,
+which iteratively refines sampling locations through multiple sampling stages
+to correct initial pose errors, thereby enhancing feature quality and the cap-
+ture of complex joint spatial relationships.
+   Pose Embed. Given estimated 2D poses P ∈ RB×J×2 , the Pose Em-
+bed module first transforms joint coordinates (x, y) via linear projection to
+high-dimensional features, augments them with positional encoding, and ap-
+
+
+                                                       10
+                                                        [ J×N2×N1×1]
+                                             Weights                                                weights
+                                              Head
+
+                 Sample
+                                                          weights
+
+
+
+
+                               [ J×Cfuse ]
+                  Grid                                              N2
+                                                                           .........     Grid
+                                             Offsets
+                                             Head                      +     .......    Sample
+                                                                                           +          ×
+                            Pose                                                       Projection
+                          embedding                     [ J×N2×N1×2]
+                                                                                                                 [ J×Cfuse ]
+
+
+
+
+                : Add+Norm                       : Ground truth                 : Detected by 2D pose detector
+
+Figure 3: Overview of our Adaptive Multi-Sampling (AMS) module, which adap-
+tively learns offsets and weights to generate multiple sets of sampling points with varying
+importance, enabling it to capture more pose-related information. AMS overcomes the
+limitation of relying solely on the estimated 2D pose, which is constrained by the accuracy
+of the 2D pose estimator. For better visualization, we apply Gaussian blur to convert the
+sampled joints into heatmaps, where higher weights correspond to brighter colors.
+
+plies dropout for regularization, producing embedded pose features P′ ∈
+RB×J×Cf use .
+    Adaptive Multi-Sampling. The structure of AMS is shown in Figure 3.
+We use the estimated 2D pose and features to adaptively learn multiple sets
+of offsets ∆ ∈ RB×J×N2 ×N1 ×2 and corresponding weights W ∈ RB×J×N2 ×N1 ,
+where 2 represents the x and y coordinates and N1 denotes the number of
+offsets or weights in one head. There are a total of N2 heads, and each
+head adaptively learns distinct sampling points from depth maps, enabling
+features to capture both joint locations and surrounding context for richer
+pose information. The offsets are then added to the initial 2D pose to obtain
+sampling points, with the process formulated as:
+
+
+                                             H = Norm(D′ + P′ ),                                                               (1)
+
+
+                                                       ∆ = θo (H),                                                             (2)
+
+                                                       W = θw (H),                                                             (3)
+
+
+
+                                                             11
+

@@ -1,0 +1,34 @@
+{
+  "num_samples": 256,
+  "joint_depth_signal": {
+    "pairwise_sign_acc_direct": 0.43761488970588236,
+    "pairwise_sign_acc_inverse": 0.5591681985294118,
+    "pairwise_sign_acc_best_orientation": 0.5591681985294118,
+    "within_sample_spearman_mean": -0.16185341109979695,
+    "within_sample_abs_pearson_mean": 0.2635632508988621,
+    "verdict": "weak"
+  },
+  "bone_surface_signal": {
+    "pairwise_bone_order_acc_direct": 0.53203125,
+    "pairwise_bone_order_acc_inverse": 0.46796875,
+    "pairwise_bone_order_acc_best_orientation": 0.53203125,
+    "within_sample_bone_spearman_mean": 0.08845358455882353,
+    "depth_range_vs_gt_bone_z_span_spearman": 0.04313162098151956,
+    "depth_std_vs_gt_bone_z_span_spearman": 0.08906950729479944,
+    "verdict": "weak"
+  },
+  "occlusion_crossing_signal": {
+    "num_candidate_crossings": 3789,
+    "pairwise_order_acc_direct": 0.3789918184217472,
+    "pairwise_order_acc_inverse": 0.6210081815782529,
+    "pairwise_order_acc_best_orientation": 0.6210081815782529,
+    "delta_spearman_abs": 0.25937903936788775,
+    "mean_depth_range_at_crossings": 0.08788974661410531,
+    "verdict": "moderate"
+  },
+  "scheme_recommendation": {
+    "skeleton_depth_surface_reasoner": "medium",
+    "depth_pose_cycle_consistency": "medium",
+    "occlusion_aware_relative_depth_graph": "high"
+  }
+}

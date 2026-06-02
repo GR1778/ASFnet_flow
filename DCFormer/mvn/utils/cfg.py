@@ -85,6 +85,102 @@ config.model.poseformer = edict()
 config.model.poseformer.embed_dim_ratio = 128
 config.model.poseformer.base_dim = 32
 config.model.poseformer.depth = 4
+config.model.poseformer.flow_num_heads = 4
+config.model.poseformer.flow_num_samples = 5
+config.model.poseformer.flow_local_radius_px = 12.0
+config.model.poseformer.flow_residual_radius_px = 4.0
+config.model.poseformer.flow_gate_init = -1.5
+config.model.poseformer.flow_encoder_layers = 1
+config.model.poseformer.mces_num_heads = 4
+config.model.poseformer.mces_num_samples = 5
+config.model.poseformer.mces_offset_scale = 0.125
+config.model.poseformer.mces_consistency_init = 1.0
+config.model.poseformer.cfuafs_num_samples = 5
+config.model.poseformer.cfuafs_radius_px = 8.0
+config.model.poseformer.cfuafs_center_bias = 4.0
+config.model.poseformer.cfuafs_utility_tau = 0.01
+config.model.poseformer.cfuafs_utility_weight = 0.05
+config.model.poseformer.cfuafs_enable_utility = True
+config.model.poseformer.aofs_kernel_size = 5
+config.model.poseformer.aofs_radius_px = 8.0
+config.model.poseformer.aofs_num_heads = 4
+config.model.poseformer.lmrs_radii = [2, 4, 6, 8, 12, 16]
+config.model.poseformer.lmrs_num_directions = 16
+config.model.poseformer.lmrs_sigma_flow = 0.5
+config.model.poseformer.lmrs_sigma_pos = 8.0
+config.model.poseformer.lmrs_tau = 0.5
+config.model.poseformer.lmrs_topk = 0
+config.model.poseformer.dlst_num_depth_layers = 4
+config.model.poseformer.dlst_num_heads = 8
+config.model.poseformer.dlst_depth = 1
+config.model.poseformer.dlst_mlp_ratio = 2.0
+config.model.poseformer.dlst_drop_path = 0.0
+config.model.poseformer.dlst_assignment_temperature = 1.0
+config.model.poseformer.dlst_omega_temperature = 1.0
+config.model.poseformer.dlst_depth_gate_init = 0.1
+config.model.poseformer.use_cmfm = True
+config.model.poseformer.cmff_depth = 2
+config.model.poseformer.cmff_heads = 8
+config.model.poseformer.cmfm_backend = "vmamba"
+config.model.poseformer.cmfm_forward_type = "v05_noz"
+config.model.poseformer.cmfm_initialize = "v0"
+config.model.poseformer.cmfm_d_state = 1
+config.model.poseformer.cmfm_d_conv = 3
+config.model.poseformer.cmfm_expand = 2
+config.model.poseformer.cmfm_conv_bias = False
+config.model.poseformer.cmfm_eca_kernel = 3
+config.model.poseformer.cmfm_init_scale = 0.1
+config.model.poseformer.cmfm_drop_path = 0.1
+config.model.poseformer.cmfm_keep_depth_token = False
+config.model.poseformer.cmfm_residual_scale = 1.0
+config.model.poseformer.pcfe_use_ssm = False
+config.model.poseformer.pcfe_backend = "mamba"
+config.model.poseformer.pcfe_d_state = 16
+config.model.poseformer.pcfe_d_conv = 4
+config.model.poseformer.pcfe_expand = 2
+config.model.poseformer.ldsr = edict()
+config.model.poseformer.ldsr.num_slots = 6
+config.model.poseformer.ldsr.num_heads = 4
+config.model.poseformer.ldsr.slot_iters = 2
+
+config.model.poseformer.posealign = edict()
+config.model.poseformer.posealign.num_anchors = 7
+config.model.poseformer.posealign.num_heads = 4
+config.model.poseformer.posealign.relation_temperature = 1.5
+config.model.poseformer.posealign.near_threshold = 0.25
+config.model.poseformer.posealign.depth_gate_temperature = 4.0
+
+# RDGA-CMFR depth branch ablations.
+# RDGA refines AMS depth tokens with relative-depth geometry attention.
+# CMFR applies lightweight reliability-aware pose/depth rectification before fusion.
+config.model.poseformer.rdga_cmfr = edict()
+config.model.poseformer.rdga_cmfr.use_rdga = True
+config.model.poseformer.rdga_cmfr.use_cmfr = True
+config.model.poseformer.rdga_cmfr.rdga_layers = 2
+config.model.poseformer.rdga_cmfr.rdga_heads = 4
+config.model.poseformer.rdga_cmfr.rdga_mlp_ratio = 2.0
+config.model.poseformer.rdga_cmfr.cmfr_reduction = 1
+config.model.poseformer.rdga_cmfr.cmfr_lambda_c = 0.5
+config.model.poseformer.rdga_cmfr.cmfr_lambda_t = 0.5
+config.model.poseformer.rdga_cmfr.cmfr_zero_init = True
+
+# DOGA: Depth Ordering Graph Attention (replaces UDE).
+# Switches control sub-component ablations; keep all True for the full DOGA.
+# `num_blocks` / `mlp_ratio` control OBCA stack capacity. `use_geom_prior`
+# injects 2D position + H36M skeleton adjacency into the PwOP. `use_aux_abs`
+# adds a coarse absolute-depth regression head as safety-net supervision;
+# `lambda_abs` weights its smooth-L1 term.
+config.model.doga = edict()
+config.model.doga.enabled = True
+config.model.doga.use_sinkhorn = True
+config.model.doga.use_obca = True
+config.model.doga.use_rape = True
+config.model.doga.sinkhorn_iter = 20
+config.model.doga.num_blocks = 4
+config.model.doga.mlp_ratio = 5.0
+config.model.doga.use_geom_prior = True
+config.model.doga.use_aux_abs = True
+config.model.doga.lambda_abs = 0.1
 
 # loss related params
 config.loss = edict()
@@ -96,6 +192,13 @@ config.loss.use_volumetric_ce_loss = True
 config.loss.volumetric_ce_loss_weight = 0.01
 config.loss.use_global_attention_loss = True
 config.loss.global_attention_loss_weight = 1000000
+config.loss.lambda_layout = 0.01
+config.loss.lambda_ude = 0.00001
+config.loss.lambda_order = 0.001
+config.loss.order_margin = 0.05
+config.loss.order_temperature = 1.0
+config.loss.order_logit_scale = 4.0
+config.loss.order_auto_unit = True
 
 # dataset related params
 config.dataset = edict()
@@ -108,6 +211,11 @@ config.dataset.extra_root = "data/human36m/extra"
 config.dataset.train_labels_path = "data/human36m/extra/human36m-multiview-labels-GTbboxes.npy"
 config.dataset.val_labels_path = "data/human36m/extra/human36m-multiview-labels-GTbboxes.npy"
 config.dataset.depth_image_path = "../H36M-Toolbox/depth_images_RGB/"
+config.dataset.depth_format = "image"
+config.dataset.flow_image_path = "../H36M-Toolbox/flow_images_float/"
+config.dataset.flow_format = "flow_npy"
+config.dataset.flow_clip = 20.0
+config.dataset.flow_norm = None
 config.dataset.train_dataset = "multiview_human36m"
 config.dataset.val_dataset = "human36m"
 
@@ -117,6 +225,7 @@ config.train.n_objects_per_epoch = 15000
 config.train.n_epochs = 9999
 config.train.n_iters_per_epoch = 5000
 config.train.batch_size = 3
+config.train.accum_iter = 1
 config.train.optimizer = 'Adam'
 config.train.backbone_lr = 0.0001
 config.train.backbone_lr_step = [1000]

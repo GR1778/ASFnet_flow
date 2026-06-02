@@ -1,0 +1,86 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Large data files (too big for GitHub)
+*.npy
+*.npz
+*.pkl
+*.h5
+*.hdf5
+*.bin
+
+# Model checkpoints & pretrained weights
+*.pth
+*.pt
+*.ckpt
+*.tar.gz
+*.tgz
+checkpoint/
+checkpoints/
+
+# Data directories (Human3.6M dataset, etc.)
+DCFormer/data/
+DCFormer_mpi/data/
+
+# Analysis output / experiment runs
+DCFormer/depth_analysis/
+DCFormer/depth_analysis_*/
+DCFormer/debug_vis/
+DCFormer/dlst_motivation_*/
+DCFormer/dlst_visualizations_*/
+DCFormer/dlst_training_signal_current/
+DCFormer/output/
+DCFormer/tmp_asfnet_figs/
+DCFormer/imagegen/
+
+# Compressed archives
+*.zip
+*.rar
+*.7z
+
+# Generated images (visualizations, figures)
+*.png
+*.jpg
+*.jpeg
+
+# PDFs (papers)
+*.pdf
+
+# IDE & OS
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# External repos / third-party (not project code)
+Depth-Anything/
+Depth-Anything-V2/
+H36M-Toolbox/
+third_party/
+.crop_bench_home/
+.depth_bench_inputs/
+.depth_bench_outputs/
+.research_repos/
+
+# Misc large files at root
+*.tar.gz
+cc-switch-cli-linux-x64-musl.tar.gz
+
+# Root-level research notes (personal, not project code)
+/asfnet_paper_*.txt
+/egfmamba.txt
+
+# Secrets & local config
+config.ini
+
+# Symlinks (external repos)
+/depth_anything
+/depth_anything_v2
+
+# Claude Code config
+/.claude/

@@ -54,13 +54,15 @@ dataset:
   train_labels_path: "data/h36m_train.pkl"
   val_labels_path: "data/h36m_validation.pkl"
   depth_image_path: "../H36M-Toolbox/depth_images/"
+  depth_format: "image"  # "image" for uint8 jpg/png, "npy" for float32 .npy
   # depth_image_path: "../H36M-Toolbox/depth_images_v2l/"
   
 train:
   n_objects_per_epoch: 15000
-  n_epochs: 9999
+  n_epochs: 30
 
-  batch_size: 128  # implement 512 by Gradient Accumulation 
+  batch_size: 64  # per-GPU. Effective global = batch_size * world_size * accum_iter
+  accum_iter: 2   # 2 GPUs x bs 64 x accum 2 = 256 effective (== original single-GPU 64x4)
 
   optimizer: 'Adam'
   backbone_lr: 0.0001

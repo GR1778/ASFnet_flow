@@ -1,0 +1,175 @@
+   Looking forward, this limitation reveals a promising direction. Temporal
+information across consecutive frames provides crucial motion cues that help
+resolve challenging cases and stabilize pose trajectories. Building on the en-
+couraging results of our initial multi-frame extension, future work will focus
+on developing temporally enhanced versions of our core modules (e.g., T-
+AMS and T-UDE) to explicitly model human motion continuity. We believe
+this will lead to more robust pose estimation in complex, in-the-wild envi-
+ronments, and we hope our work inspires further research in this direction.
+
+
+Declaration of interest
+
+   The authors declare that they have no known competing financial inter-
+ests or personal relationships that could have appeared to influence the work
+reported in this paper.
+
+
+References
+
+ [1] Y. Luo, C. Yuan, L. Gao, W. Xu, X. Yang, and P. Wang, “Fatnet:
+    Feature-alignment transformer network for human pose transfer,” PR,
+    vol. 165, p. 111626, 2025.
+
+ [2] Q. Cui and Z. Ding, “Hybrid directed hypergraph learning and forecast-
+    ing of skeleton-based human poses,” CBS, vol. 5, p. 0093, 2024.
+
+ [3] H. Wang and H. Liu, “Merge-and-split graph convolutional network for
+    skeleton-based interaction recognition,” CBS, vol. 5, p. 0102, 2024.
+
+ [4] B. Ren, M. Liu, R. Ding, and H. Liu, “A survey on 3d skeleton-based
+    action recognition using learning method,” CBS, vol. 5, p. 0100, 2024.
+
+ [5] Y. Chen, Z. Wang, Y. Peng, and Z. Zhang, “Cascaded pyramid network
+    for multi-person pose estimation,” in CVPR, 2018, pp. 7103–7112.
+
+                                     35
+ [6] C.-H. Chen and D. Ramanan, “3d human pose estimation= 2d pose
+    estimation+ matching,” in CVPR, 2017, pp. 7035–7043.
+
+ [7] Z. Chen, J. Dai, J. Bai, and J. Pan, “Dgformer: Dynamic graph trans-
+    former for 3d human pose estimation,” PR, vol. 152, p. 110446, 2024.
+
+ [8] W. Li, M. Liu, H. Liu, T. Guo, T. Wang, H. Tang, and N. Sebe,
+    “Graphmlp: A graph mlp-like architecture for 3d human pose estima-
+    tion,” PR, vol. 158, p. 110925, 2025.
+
+ [9] Q. Zhao, C. Zheng, and M. Liu, “A single 2d pose with context is worth
+    hundreds for 3d human pose estimation,” NeurlPS, vol. 36, 2023.
+
+[10] G. Pavlakos, X. Zhou, and K. Daniilidis, “Ordinal depth supervision for
+    3d human pose estimation,” in CVPR, 2018, pp. 7307–7316.
+
+[11] B. X. Nie, P. Wei, and S.-C. Zhu, “Monocular 3d human pose estimation
+    by predicting depth on joints,” in ICCV, 2017, pp. 3467–3475.
+
+[12] C. Ionescu, D. Papava, V. Olaru, and C. Sminchisescu, “Human3. 6m:
+    Large scale datasets and predictive methods for 3d human sensing in
+    natural environments,” TPAMI, vol. 36, no. 7, pp. 1325–1339, 2013.
+
+[13] D. Mehta, H. Rhodin, D. Casas, P. Fua, O. Sotnychenko, W. Xu, and
+    C. Theobalt, “Monocular 3d human pose estimation in the wild using
+    improved cnn supervision,” in 3DV, 2017, pp. 506–516.
+
+[14] L. Xia, C.-C. Chen, and J. K. Aggarwal, “Human detection using depth
+    information by kinect,” in CVPR, 2011, pp. 15–22.
+
+[15] G. Pavlakos, X. Zhou, K. G. Derpanis, and K. Daniilidis, “Coarse-to-
+    fine volumetric prediction for single-image 3d human pose,” in CVPR,
+    2017, pp. 7025–7034.
+
+                                    36
+[16] K. Sun, B. Xiao, and D. Liu, “Deep high-resolution representation learn-
+    ing for human pose estimation,” in CVPR, 2019, pp. 5693–5703.
+
+[17] J. Xu, Z. Yu, B. Ni, J. Yang, and X. Yang, “Deep kinematics analysis
+    for monocular 3d human pose estimation,” in CVPR, 2020, pp. 899–908.
+
+[18] T. Chen, C. Fang, X. Shen, Y. Zhu, Z. Chen, and J. Luo, “Anatomy-
+    aware 3d human pose estimation with bone-based pose decomposition,”
+    TCSVT, vol. 32, no. 1, pp. 198–209, 2021.
+
+[19] W. Shan, Z. Liu, X. Zhang, Z. Wang, K. Han, S. Wang, S. Ma,
+    and W. Gao, “Diffusion-based 3d human pose estimation with multi-
+    hypothesis aggregation,” in ICCV, 2023, pp. 14 761–14 771.
+
+[20] K. Holmquist and B. Wandt, “Diffpose: Multi-hypothesis human pose
+    estimation using diffusion models,” in ICCV, 2023, pp. 15 977–15 987.
+
+[21] J. Gong, L. G. Foo, Z. Fan, Q. Ke, and H. Rahmani, “Diffpose: Toward
+    more reliable 3d pose estimation,” in CVPR, 2023, pp. 13 041–13 051.
+
+[22] Q. Cai, X. Hu, S. Hou, L. Yao, and Y. Huang, “Disentangled diffusion-
+    based 3d human pose estimation with hierarchical spatial and temporal
+    denoiser,” in AAAI, vol. 38, no. 2, 2024, pp. 882–890.
+
+[23] W. Wang, J. Xiao, C. Wang, W. Liu, Z. Wang, and L. Chen, “Di2pose:
+    Discrete diffusion model for occluded 3d human pose estimation,”
+    NeurlPS, vol. 37, pp. 98 717–98 741, 2024.
+
+[24] Z. Jiang, Z. Zhou, L. Li, W. Chai, C.-Y. Yang, and J.-N. Hwang, “Back
+    to optimization: Diffusion-based zero-shot 3d human pose estimation,”
+    in WACV, 2024, pp. 6142–6152.
+
+
+
+                                     37
+[25] H. Zhang and L. Carlone, “Champ: Conformalized 3d human multi-
+    hypothesis pose estimators,” in ICLR.
+
+[26] Y. Xu, W. Wang, T. Liu, X. Liu, J. Xie, and S.-C. Zhu, “Monocular
+    3d pose estimation via pose grammar and data augmentation,” TPAMI,
+    vol. 44, no. 10, pp. 6327–6344, 2021.
+
+[27] L. Zhao, X. Peng, Y. Tian, M. Kapadia, and D. N. Metaxas, “Semantic
+    graph convolutional networks for 3d human pose regression,” in CVPR,
+    2019, pp. 3425–3435.
+
+[28] M. I. Hossain, S. Akhter, C. S. Hong, and E.-N. Huh, “Complexity-aware
+    dynamic gradient shifting: A novel soft supervision training strategy for
+    3d pose estimation and regression learning,” TCSVT, 2025.
+
+[29] A. D’Eusanio, A. Simoni, S. Pini, G. Borghi, R. Vezzani, and R. Cuc-
+    chiara, “Depth-based 3d human pose refinement: Evaluating the refinet
+    framework,” PRL, vol. 171, pp. 185–191, 2023.
+
+[30] A. Kendall and Y. Gal, “What uncertainties do we need in bayesian
+    deep learning for computer vision?” NeurlPS, vol. 30, 2017.
+
+[31] T. Von Marcard, R. Henschel, M. J. Black, B. Rosenhahn, and G. Pons-
+    Moll, “Recovering accurate 3d human pose in the wild using imus and
+    a moving camera,” in ECCV, 2018, pp. 601–617.
+
+[32] T.-Y. Lin, M. Maire, S. Belongie, J. Hays, P. Perona, D. Ramanan,
+    P. Dollár, and C. L. Zitnick, “Microsoft coco: Common objects in con-
+    text,” in ECCV, 2014, pp. 740–755.
+
+[33] L. Yang, B. Kang, Z. Huang, X. Xu, J. Feng, and H. Zhao, “Depth any-
+
+
+
+                                    38
+    thing: Unleashing the power of large-scale unlabeled data,” in CVPR,
+    2024, pp. 10 371–10 381.
+
+[34] T. Chen, C. Fang, X. Shen, Y. Zhu, Z. Chen, and J. Luo, “Anatomy-
+    aware 3d human pose estimation with bone-based pose decomposition,”
+    TCSVT, vol. 32, no. 1, pp. 198–209, 2021.
+
+[35] C. Zheng, S. Zhu, M. Mendieta, T. Yang, C. Chen, and Z. Ding, “3d hu-
+    man pose estimation with spatial and temporal transformers,” in ICCV,
+    2021, pp. 11 656–11 665.
+
+[36] M. Hu, C. Liu, S. Li, Q. Yan, Q. Fang, and Q. Chen, “A geometric
+    knowledge oriented single-frame 2d-to-3d human absolute pose estima-
+    tion method,” TCSVT, vol. 33, no. 12, pp. 7282–7295, 2023.
+
+[37] L. Yang, B. Kang, Z. Huang, Z. Zhao, X. Xu, J. Feng, and H. Zhao,
+    “Depth anything v2,” NeurlPS, vol. 37, pp. 21 875–21 911, 2024.
+
+[38] S. Mehraban, V. Adeli, and B. Taati, “Motionagformer: Enhancing
+    3d human pose estimation with a transformer-gcnformer network,” in
+    WACV, 2024, pp. 6920–6930.
+
+[39] Y. Liu and Z. Zhang, “Stgformer: Spatio-temporal graphformer for 3d
+    human pose estimation in video,” PR, p. 112239, 2025.
+
+[40] Z. Zheng, L. Yang, H. Zhu, and M. Ye, “Spectral compression trans-
+    former with line pose graph for monocular 3d human pose estimation,”
+    PR, vol. 172, p. 112507, 2026.
+
+
+
+
+                                     39
+

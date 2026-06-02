@@ -1,0 +1,116 @@
+{
+  "pdf_path": "/home/SIMON/26HPE/ASFnet/DCFormer/Liu和Liu - 2026 - Adaptive learning from noisy estimated depth maps benefits monocular RGB-based 3D human pose estimat.pdf",
+  "code_paths": [
+    "mvn/models/DGLifting.py"
+  ],
+  "scores": {
+    "motivation_clarity": 90.0,
+    "structural_coherence": 90.0,
+    "experimental_support": 90.0,
+    "implementation_alignment": 90.0,
+    "complexity_efficiency": 90.0
+  },
+  "weights": {
+    "motivation_clarity": 0.2,
+    "structural_coherence": 0.2,
+    "experimental_support": 0.25,
+    "implementation_alignment": 0.25,
+    "complexity_efficiency": 0.1
+  },
+  "final_score": 90.0,
+  "level": "合理",
+  "pdf_evidence": {
+    "motivation": [
+      "journal pre-proof adaptive learning from noisy estimated depth maps beneﬁts monocular rgb-based 3d human pose estimation mengyuan liu, jingting liu pii: s0031-3203(26)00496-6 doi: https://doi",
+      "113530 reference: pr 113530 to appear in: pattern recognition received date: 28 august 2025 revised date: 26 january 2026 accepted date: 16 march 2026 please cite this article as: mengyuan liu, jingting liu, adaptive learning from noisy estimated depth maps beneﬁts monocular rgb-based 3d human pose estimation, pattern recognition (2026), doi: https://doi",
+      "•adaptive multi-sampling handles noisy 2d pose input by dynamic points adjustment",
+      "•joint-wise uncertainty estimation enables depth features to self-enhancing",
+      "•the model achieves state-of-the-art performance on standard bench- mark 1                     adaptive learning from noisy estimated depth maps benefits monocular rgb-based 3d human pose estimation mengyuan liua, jingting liu a, astate key laboratory of general artificial intelligence, peking university, shenzhen graduate school, china abstract monocular rgb-based 3d human pose estimation has broad applications in human-centric scenarios",
+      "first, we present an adaptive multi-sampling (ams) module that utilizes estimated 2d poses as guid- ance to focus on pose-relevant depth information",
+      "to reduce the influence of 2d pose noise, ams adaptively adjusts sampling points and weights using both the depth map and 2d pose, focusing on informative regions",
+      "cn (jingting liu) preprint submitted to pattern recognition march 17, 2026                     ond, we propose an uncertainty-aware depth enhancer (ude) module to adaptively fuse depth features by suppressing depth map noise",
+      "guided by a heteroscedastic uncertainty loss, ude estimates the mean and vari- ance of depth features for each joint, with variance indicating uncertainty to filter unreliable information",
+      "keywords: human pose estimation; depth ambiguity; uncertainty-aware learning",
+      "with the ad- vancement of robust 2d pose detectors [5] and the availability of large-scale 3d motion capture datasets [6], the dominant 2d-to-3d lifting pipeline first infers 2d poses from rgb images and then lifts them to 3d",
+      "2d pose detector depth  estimator adaptive  multi- sampling depth-aware lifting model 2d pose enhanced depth feature 2d pose detector  lifting model 2d pose figure 1: comparison between traditional lifting methods and our depth-aware approach for monocular rgb-based 3d human pose estimation",
+      "we propose adaptive multi-sampling to dynamically focus on pose-relevant regions, improving feature extraction despite noisy 2d poses",
+      "the uncertainty-aware depth enhancer further refines depth features by suppressing noise",
+      "as illustrated in figure 1 (b), our solution directly maps a dedicated module to each challenge: the adaptive multi-sampling (ams) module tackles spatial misalignment by dynamically 4                     adjusting sampling points around estimated 2d joints to extract reliable pose-relevant depth features",
+      "concurrently, the uncertainty-aware depth enhancer (ude) module suppresses depth noise by explicitly modeling the uncertainty of each joint’s depth features, self-adaptively emphasizing reli- able cues and suppressing noisy ones",
+      "by integrating these two modules, our framework establishes a robust pipeline that directly addresses the two distinct weaknesses in depth-aware pose estimation, transforming raw depth maps into informative and reliable cues",
+      "specifically, to address the challenge of extracting reliable pose-relevant depth features in the presence of noisy 2d poses, ams adaptively learns a set of offsets and weights from both the depth map and the estimated 2d pose, and uses them to perform flexible multi-sampling from the depth map",
+      "furthermore, to suppress inherent depth noise and improve robustness under varying qualities of depth estimation",
+      "ude predicts a distribution over the sampled depth features for each joint by estimating the expected value as the depth reference and the variance as the corresponding uncer- tainty"
+    ],
+    "structure": [
+      "to address these two issues, we propose the adap- tive sample and fusion network (asfnet)",
+      "first, we present an adaptive multi-sampling (ams) module that utilizes estimated 2d poses as guid- ance to focus on pose-relevant depth information",
+      "cn (jingting liu) preprint submitted to pattern recognition march 17, 2026                     ond, we propose an uncertainty-aware depth enhancer (ude) module to adaptively fuse depth features by suppressing depth map noise",
+      "subsequently, the adjusted depth features and 2d poses are integrated via a multimodal interaction transformer us- ing cross-modal attention",
+      "to address these challenges, we propose a novel depth-aware framework whose core novelty lies in the synergistic combination of two dedicated modules, each designed to tackle a distinct fundamental weakness",
+      "as illustrated in figure 1 (b), our solution directly maps a dedicated module to each challenge: the adaptive multi-sampling (ams) module tackles spatial misalignment by dynamically 4                     adjusting sampling points around estimated 2d joints to extract reliable pose-relevant depth features",
+      "concurrently, the uncertainty-aware depth enhancer (ude) module suppresses depth noise by explicitly modeling the uncertainty of each joint’s depth features, self-adaptively emphasizing reli- able cues and suppressing noisy ones",
+      "by integrating these two modules, our framework establishes a robust pipeline that directly addresses the two distinct weaknesses in depth-aware pose estimation, transforming raw depth maps into informative and reliable cues",
+      "finally, a transformer-based fusion regressor integrates the refined multi- modal features for 3d pose estimation",
+      "notably, the proposed ams and ude modules are highly modular and flexible, and can be readily integrated into existing lifting-based frameworks, including both single-frame and multi- frame variants",
+      "our framework not only sets a new state-of-the-art on benchmark datasets, outperforming existing lifting-based and fusion meth- ods, but also delivers a critical practical advantage: it exhibits remarkable robustness, significantly mitigating the performance penalty typically associ- ated with using efficient, low-precision depth estimators",
+      "•we introduce an adaptive multi-sampling (ams) module that progres- sively refines sampling locations through iterative correction to extract comprehensive pose-relevant features",
+      "recently, transformer-based methods [7] have gained sig- nificant attention, building on their success in vision tasks",
+      "the latest ad- vancement employs diffusion models, which learn valid 3d pose distributions to synthesize diverse samples",
+      "fusion methods beyond mainstream approaches, some methods integrate 2d poses with image information to compensate for insufficient 2d cues",
+      "however, these methods face several limitations: some bypass established 2d detectors [26], increasing complexity while losing detector benefits; others employ subop- timal fusion strategies, such as segmenting local patches [27] or using data- sparse heatmaps [21]",
+      "other approaches explicitly target depth estimation: some design specialized modules for joint depth ranking [10], while [11] regresses depth from local patches via lstm",
+      "yet these methods suffer from limited accuracy due to simplistic fusion process and local processing",
+      "{[ hs×ws×cs]}s=1 s [ j×2] [ h×w×cfuse] [ j×1] [ j×1] [ j×cfuse] [ j×cfuse] figure 2: overview of our adaptive sample and fusion network (asfnet)",
+      "guided by the 2d pose, the adaptive multi-sampling (ams) module samples both image features and depth features from the rgb image features and the depth map"
+    ],
+    "experiment": [
+      "our framework not only sets a new state-of-the-art on benchmark datasets, outperforming existing lifting-based and fusion meth- ods, but also delivers a critical practical advantage: it exhibits remarkable robustness, significantly mitigating the performance penalty typically associ- ated with using efficient, low-precision depth estimators",
+      "•experiments on benchmark datasets for 3d human pose estimation, i",
+      "despite advances, methods relying solely on 2d poses face the ineluctable challenge of depth ambiguity",
+      "overview figure 2 illustrates our overall framework, with key notations summarized in table 1",
+      "9                     table 1: key mathematical notations used in our methodology",
+      "datasets and evaluation metrics we evaluate on three standard benchmarks under established protocols",
+      "6m [12], we use subjects s1, 17                     s5, s6, s7, s8 for training and s9, s11 for testing, reporting mpjpe (pro- tocol 1) and pa-mpjpe",
+      "on mpi-inf-3dhp [13], we use the indoor and outdoor benchmark with standard train/test split, reporting pck@150mm, auc, and mpjpe",
+      "on 3dpw [31], we evaluate on the challenging multi- person in-the-wild test set using mpjpe and pa-mpjpe",
+      "table 2 shows our method achieves sota on human3",
+      "4mm mpjpe) and protocol 2 (31",
+      "4mm pa-mpjpe)",
+      "to ensure statistical reliability, we report the mean and standard deviation from multiple runs (mpjpe: 38",
+      "14, pa-mpjpe: 18                     table 2: results on human3",
+      "top-table: results under protocol 1 (mpjpe)",
+      "bottom-table: results under protocol 2 (pa-mpjpe)",
+      "4 table 3: results on human3",
+      "6m dataset in millimeters under protocol 1 (mpjpe)",
+      "6mm absolute improvement) compared to graphmlp among lifting-based methods, surpassing previous sota pstr by 0",
+      "for pa-mpjpe, we establish new sota, outperforming the latest pstr baseline by 0"
+    ],
+    "complexity": [
+      "alternatively, methods relying on depth camera datasets [29] face cost and generalization barriers, restrict- ing their applicability to general rgb imagery",
+      "pck, auc, and mpjpe are used as main evaluation metrics, with model complexity (params/m, flops/g) reported for reference",
+      "method venue parameters(m)flops (g) for per framepck (↑) auc (↑) mpjpe (↓) anatomy [34] tcsvt’21 59",
+      "we further extend the evaluation to include model efficiency metrics",
+      "4g flops), our method reduces mpjpe by 30",
+      "3mm compared to flops-heavy poseformer [35] using only 29% computational budget",
+      "these results demonstrate optimal accuracy without extreme parameterization and strong generalization in challenging environments",
+      "marker sizes correspond to depth estimator parameter counts",
+      "moreover, our sparse multi- sampling (ams) and uncertainty regression (ude) introduce insignificant additional cost in the lifting stage (stage 2), as reflected in the comparable lifting times (5",
+      "9 ms) and corroborated by the flops/parameters compared with other mehtods reported in table 4"
+    ]
+  },
+  "code_evidence": {
+    "mvn/models/DGLifting.py": {
+      "matched_keywords": [
+        "depth_uncer",
+        "attn_depth",
+        "attn_fc",
+        "z_embed",
+        "coarse_depth",
+        "uncer",
+        "torch.cat([joint_uncer,z_value,x_depth]"
+      ]
+    }
+  },
+  "created_at": "2026-04-22T04:30:49"
+}

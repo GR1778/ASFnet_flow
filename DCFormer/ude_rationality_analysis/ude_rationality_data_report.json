@@ -1,0 +1,67 @@
+{
+  "created_at": "2026-04-22T04:44:01",
+  "command": "python3 tools/analyze_depth_utilization.py --config experiments/human36m/human36m_single.yaml --checkpoint /home/SIMON/26HPE/ASFnet/DCFormer/checkpoint/h36m_v2b.bin --num_samples 256 --batch_size 32 --device cuda:0",
+  "return_code": 0,
+  "warnings": [],
+  "rigorous_metrics": {
+    "alpha_mean": 1.2918,
+    "alpha_std": 1.8092,
+    "beta_mean": -4.2105,
+    "beta_std": 8.3792,
+    "affine_r2_mean": 0.2337,
+    "ordinal_accuracy": 0.605,
+    "metric_bone_depth_error_mm": 0.2775,
+    "grad_mag_mean": 13.9385,
+    "grad_mag_std": 33.4356,
+    "depth_at_joint_mean": 69.3831,
+    "joint_depth_variance": 0.4828
+  },
+  "scoring": {
+    "dimension_scores": {
+      "uncertainty_calibration": 0.0,
+      "ordinal_metric_consistency": 23.0,
+      "affine_stability": 19.0,
+      "joint_depth_structure": 100.0
+    },
+    "dimension_comments": {
+      "uncertainty_calibration": "corr=0.000, high_unc_err=0.0000, low_unc_err=0.0000",
+      "ordinal_metric_consistency": "ordinal_acc=0.605, affine_r2=0.234, metric_bone_depth_error=0.2775",
+      "affine_stability": "alpha=1.292±1.809, beta=-4.210±8.379",
+      "joint_depth_structure": "grad_mean=13.9385, grad_std=33.4356, joint_depth_variance=0.4828, depth_at_joint_mean=69.3831"
+    },
+    "weights": {
+      "uncertainty_calibration": 0.35,
+      "ordinal_metric_consistency": 0.3,
+      "affine_stability": 0.2,
+      "joint_depth_structure": 0.15
+    },
+    "final_score": 25.7,
+    "level": "不合理"
+  },
+  "code_risks": [
+    {
+      "severity": "high",
+      "path": "mvn/models/DGLifting.py",
+      "issue": "umap_softmax_dim_over_joints",
+      "detail": "UMap uses softmax over joint dimension (dim=1). Paper-style UMap usually normalizes feature channel dimension."
+    },
+    {
+      "severity": "high",
+      "path": "mvn/models/loss.py",
+      "issue": "missing_log_variance_clamp",
+      "detail": "No explicit clamp for log-variance s was found in depth uncertainty loss."
+    },
+    {
+      "severity": "medium",
+      "path": "tools/analyze_depth_utilization.py",
+      "issue": "sigma_conversion_mismatch",
+      "detail": "Diagnostic computes sigma as exp(s), while common heteroscedastic form uses sigma=exp(s/2)."
+    },
+    {
+      "severity": "medium",
+      "path": "train.py",
+      "issue": "hardcoded_depth_loss_weight",
+      "detail": "Depth uncertainty loss weight is hard-coded (1e-5) in training loop."
+    }
+  ]
+}

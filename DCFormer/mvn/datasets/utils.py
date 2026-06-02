@@ -13,17 +13,43 @@ joints_left = [4, 5, 6, 11, 12, 13]
 joints_right = [1, 2, 3, 14, 15, 16]
 
 class data_prefetcher():
-    def __init__(self, loader, device, is_train, flip_test):
+    def __init__(self, loader, device, is_train, flip_test, aux_mode="depth", flow_clip=20.0, flow_norm=None):
         self.loader = iter(loader)
-        self.stream = torch.cuda.Stream()
         self.device = device
+        self.stream = torch.cuda.Stream(device=device)
         self.is_train = is_train
         self.flip_test = flip_test
+        self.aux_mode = aux_mode
+        self.flow_clip = flow_clip
+        self.flow_norm = flow_clip if flow_norm is None else flow_norm
         # self.mean = torch.tensor([122.7717, 115.9465, 102.9801]).cuda().to(device).view(1, 1, 1, 3)
         # self.mean /= 255.
-        self.mean = torch.tensor([0.485, 0.456, 0.406]).cuda().to(device)
-        self.std = torch.tensor([0.229, 0.224, 0.225]).cuda().to(device)
+        self.mean = torch.tensor([0.485, 0.456, 0.406], device=device)
+        self.std = torch.tensor([0.229, 0.224, 0.225], device=device)
         self.preload()
+
+    def _prepare_aux(self, aux_images_batch, aux_mode):
+        if torch.is_floating_point(aux_images_batch):
+            aux_images_batch = aux_images_batch.float()
+        else:
+            aux_images_batch = aux_images_batch.float() / 255.0
+
+        if aux_mode == "flow":
+            if aux_images_batch.dim() != 4 or aux_images_batch.shape[-1] != 2:
+                raise ValueError("Expected flow batch with shape [B, H, W, 2], got {}".format(tuple(aux_images_batch.shape)))
+            if self.flow_clip is not None and self.flow_clip > 0:
+                aux_images_batch = aux_images_batch.clamp(-self.flow_clip, self.flow_clip)
+            if self.flow_norm is not None and self.flow_norm > 0:
+                aux_images_batch = aux_images_batch / self.flow_norm
+
+        return aux_images_batch
+
+    @staticmethod
+    def _flip_aux(aux_images_batch, aux_mode):
+        aux_images_batch = torch.flip(aux_images_batch, [2])
+        if aux_mode == "flow":
+            aux_images_batch[..., 0] *= -1
+        return aux_images_batch
 
     def preload(self):
         try:
@@ -37,12 +63,17 @@ class data_prefetcher():
                 # features_list
                 if isinstance(self.next_batch[i], list):
                     for j in range(len(self.next_batch[i])):
-                        self.next_batch[i][j] = self.next_batch[i][j].cuda(non_blocking=True).to(self.device)
+                        self.next_batch[i][j] = self.next_batch[i][j].to(self.device, non_blocking=True)
                 else:
-                    self.next_batch[i] = self.next_batch[i].cuda(non_blocking=True).to(self.device)
+                    self.next_batch[i] = self.next_batch[i].to(self.device, non_blocking=True)
 
-            images_batch, keypoints_3d_gt, keypoints_2d_batch_cpn, keypoints_2d_batch_cpn_crop, depth_images_batch = self.next_batch
-            depth_images_batch = depth_images_batch / 255.0
+            if self.aux_mode == "depth_flow":
+                images_batch, keypoints_3d_gt, keypoints_2d_batch_cpn, keypoints_2d_batch_cpn_crop, depth_images_batch, flow_images_batch = self.next_batch
+                depth_images_batch = self._prepare_aux(depth_images_batch, "depth")
+                flow_images_batch = self._prepare_aux(flow_images_batch, "flow")
+            else:
+                images_batch, keypoints_3d_gt, keypoints_2d_batch_cpn, keypoints_2d_batch_cpn_crop, aux_images_batch = self.next_batch
+                aux_images_batch = self._prepare_aux(aux_images_batch, self.aux_mode)
 
             images_batch = torch.flip(images_batch, [-1])
 
@@ -53,7 +84,11 @@ class data_prefetcher():
             if random.random() <= 0.5 and self.is_train:
                 images_batch = torch.flip(images_batch, [2]) #[B, 256, 192, 3]
                 # features_list_batch = features_list_flip_batch
-                depth_images_batch = torch.flip(depth_images_batch, [2]) #[B, 256, 192]
+                if self.aux_mode == "depth_flow":
+                    depth_images_batch = self._flip_aux(depth_images_batch, "depth")
+                    flow_images_batch = self._flip_aux(flow_images_batch, "flow")
+                else:
+                    aux_images_batch = self._flip_aux(aux_images_batch, self.aux_mode) #[B, 256, 192] or [B, 256, 192, 2]
 
                 keypoints_2d_batch_cpn[..., 0] *= -1
                 keypoints_2d_batch_cpn[..., joints_left + joints_right, :] = keypoints_2d_batch_cpn[..., joints_right + joints_left, :]
@@ -67,7 +102,11 @@ class data_prefetcher():
             if (not self.is_train) and self.flip_test:
                 images_batch = torch.stack([images_batch, torch.flip(images_batch,[2])], dim=1)
                 # features_list_batch = torch.stack([features_list_batch, features_list_flip_batch], dim=1)
-                depth_images_batch = torch.stack([depth_images_batch, torch.flip(depth_images_batch,[2])], dim=1)
+                if self.aux_mode == "depth_flow":
+                    depth_images_batch = torch.stack([depth_images_batch, self._flip_aux(depth_images_batch, "depth")], dim=1)
+                    flow_images_batch = torch.stack([flow_images_batch, self._flip_aux(flow_images_batch, "flow")], dim=1)
+                else:
+                    aux_images_batch = torch.stack([aux_images_batch, self._flip_aux(aux_images_batch, self.aux_mode)], dim=1)
 
                 keypoints_2d_batch_cpn_flip = keypoints_2d_batch_cpn.clone()
                 keypoints_2d_batch_cpn_flip[..., 0] *= -1
@@ -82,10 +121,20 @@ class data_prefetcher():
                 del keypoints_2d_batch_cpn_flip, keypoints_2d_batch_cpn_crop_flip
 
             # self.next_batch = [images_batch.float(), keypoints_3d_gt.float(), keypoints_2d_batch_cpn.float(), keypoints_2d_batch_cpn_crop.float(), features_list_batch.float()]
-            self.next_batch = [images_batch.float(), keypoints_3d_gt.float(), keypoints_2d_batch_cpn.float(), keypoints_2d_batch_cpn_crop.float(), depth_images_batch.float()]
+            if self.aux_mode == "depth_flow":
+                self.next_batch = [
+                    images_batch.float(),
+                    keypoints_3d_gt.float(),
+                    keypoints_2d_batch_cpn.float(),
+                    keypoints_2d_batch_cpn_crop.float(),
+                    depth_images_batch.float(),
+                    flow_images_batch.float(),
+                ]
+            else:
+                self.next_batch = [images_batch.float(), keypoints_3d_gt.float(), keypoints_2d_batch_cpn.float(), keypoints_2d_batch_cpn_crop.float(), aux_images_batch.float()]
 
     def next(self):
-        torch.cuda.current_stream().wait_stream(self.stream)
+        torch.cuda.current_stream(self.device).wait_stream(self.stream)
         batch = self.next_batch
         self.preload()
         return batch

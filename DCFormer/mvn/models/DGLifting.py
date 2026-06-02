@@ -36,7 +36,7 @@ class DepthUncertaintyModel(nn.Module):
         super(DepthUncertaintyModel, self).__init__()
         self.decoder_depth = Mlp(in_features=input_dim, hidden_features=input_dim // 2, out_features=1, act_layer=nn.GELU)
         self.decoder_uncer = Mlp(in_features=input_dim, hidden_features=input_dim // 2, out_features=1, act_layer=nn.GELU)
-    
+
     def forward(self, x):
         # input: [B, K, C]     
         joint_depth = self.decoder_depth(x)
@@ -158,7 +158,7 @@ class DeformableBlock(nn.Module):
 
         features_sampled = [
             F.grid_sample(features, pos[:, idx], padding_mode='border', align_corners=True).permute(0, 2, 3, 1).contiguous() \
-            for idx, features in enumerate(features_list)]
+            for idx, features in enumerate(features_list)]  
         # depth_feature = self.depth_embed(depth_feature).permute(0, 3, 1, 2).contiguous() # [b, dim, 256, 192]
         # features_sampled = [
         #     F.grid_sample(depth_feature.clone(), pos[:, idx], padding_mode='border', align_corners=True).permute(0, 2, 3, 1).contiguous() \
@@ -289,8 +289,7 @@ class DGLifting(nn.Module):
 
         z_value = self.z_embed(coarse_depth) + self.Spatial_pos_embed2
         joint_uncer = F.softmax(self.attn_fc(uncer), dim=1)
-        # x_depth = x_depth * (1-joint_uncer) + z_value * joint_uncer
-        x_depth = torch.cat([joint_uncer,z_value,x_depth], dim=-1) #[b, 17, 128*3]
+        x_depth = torch.cat([joint_uncer, z_value, x_depth], dim=-1) #[b, 17, 128*3]
         x_depth = self.attn_depth(x_depth) #[b, 17, 128]
         x = torch.cat((x[:, :-1], x_depth.unsqueeze(1)), dim=1)
 

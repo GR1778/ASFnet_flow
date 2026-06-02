@@ -1,0 +1,93 @@
+{
+  "num_samples": 32,
+  "fd_shape": [
+    32,
+    17,
+    128
+  ],
+  "coarse_mu": {
+    "affine_r2_mean": 0.23550814814201815,
+    "affine_mae_mean": 0.09521737555041909,
+    "alpha_mean": 2.410166773945093,
+    "alpha_std": 0.2504217071382944,
+    "beta_mean": 0.031223899131873623,
+    "beta_std": 0.012976845710350748,
+    "ordinal_acc_all_pairs": 0.7017463235294118,
+    "ordinal_acc_bones": 0.51953125,
+    "ordinal_acc_ambiguous_pairs": 0.828125
+  },
+  "fd_body_mean_stats": {
+    "offdiag_cosine_mean": 0.6210086345672607,
+    "offdiag_cosine_std": 0.1602776050567627,
+    "body_mean_energy_fraction": 0.6277278661727905
+  },
+  "unsupervised_pairwise_all": {
+    "spearman_feature_distance_vs_abs_depth_gap": 0.13118895471255532,
+    "pearson_feature_distance_vs_abs_depth_gap": 0.1825745890175751,
+    "feature_distance_mean": 1.698395013809204,
+    "abs_depth_gap_mean": 0.16964595019817352
+  },
+  "unsupervised_pairwise_bones": {
+    "spearman_feature_distance_vs_abs_depth_gap": -0.387169943980957,
+    "pearson_feature_distance_vs_abs_depth_gap": -0.47263528415274286,
+    "feature_distance_mean": 1.2715015411376953,
+    "abs_depth_gap_mean": 0.06299930810928345
+  },
+  "unsupervised_pairwise_ambiguous": {
+    "spearman_feature_distance_vs_abs_depth_gap": -0.22517094872968638,
+    "pearson_feature_distance_vs_abs_depth_gap": -0.02015649926789633,
+    "feature_distance_mean": 1.5492326021194458,
+    "abs_depth_gap_mean": 0.2857327461242676
+  },
+  "linear_probe_absolute_z": {
+    "r2": 0.979555844638075,
+    "pearson": 0.9939086631861416,
+    "mae": 0.015082674928051808,
+    "target_std": 0.14377744495868683,
+    "mae_over_std": 0.1049029278012332
+  },
+  "linear_probe_pairwise_all": {
+    "num_pairs": 136,
+    "r2": 0.9904176547876135,
+    "pearson": 0.9968360022169217,
+    "spearman": 0.9946786732755397,
+    "ordinal_acc": 0.9779411764705882,
+    "mae": 0.014712419239697808,
+    "target_std": 0.20638209490072057,
+    "mae_over_std": 0.07128728510437828
+  },
+  "linear_probe_pairwise_bones": {
+    "num_pairs": 16,
+    "r2": 0.9806225041993352,
+    "pearson": 0.9914175268634001,
+    "spearman": 0.9779268721434431,
+    "ordinal_acc": 0.95,
+    "mae": 0.0071194287065451415,
+    "target_std": 0.07586761553711208,
+    "mae_over_std": 0.09384015374740093
+  },
+  "linear_probe_pairwise_ambiguous": {
+    "num_pairs": 8,
+    "r2": 0.994528034607354,
+    "pearson": 0.9979061868236581,
+    "spearman": 0.983497421472105,
+    "ordinal_acc": 1.0,
+    "mae": 0.016254125522370717,
+    "target_std": 0.3197485617057499,
+    "mae_over_std": 0.05083408486846555
+  },
+  "verdict": {
+    "relative_depth_relation_module_motivation": "strong",
+    "recommended_module_direction": "Add an AMS-after module that converts sampled depth features into root-relative and pairwise joint-depth relations, then feeds relation-aware joint tokens to the multimodal fusion transformer. This is not denoising; it is depth-layout/ordinal-geometry modeling.",
+    "candidate_names": [
+      "Relative Depth Relation Transformer (RDRT)",
+      "Depth Layout Relation Module (DLRM)",
+      "Pairwise Ordinal Depth Adapter (PODA)"
+    ],
+    "reasons": [
+      "AMS F_d is strongly frame/global-component dominated.",
+      "Raw F_d pairwise distances weakly track true depth gaps.",
+      "The scalar depth head does not reliably preserve joint depth order."
+    ]
+  }
+}

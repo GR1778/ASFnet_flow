@@ -1,0 +1,208 @@
+Journal Pre-proof
+
+
+Adaptive Learning from Noisy Estimated Depth Maps Benefits
+Monocular RGB-based 3D Human Pose Estimation
+
+Mengyuan Liu, Jingting Liu
+
+PII:                   S0031-3203(26)00496-6
+DOI:                   https://doi.org/10.1016/j.patcog.2026.113530
+Reference:             PR 113530
+
+
+To appear in:          Pattern Recognition
+
+Received date:         28 August 2025
+Revised date:          26 January 2026
+Accepted date:         16 March 2026
+
+Please cite this article as: Mengyuan Liu, Jingting Liu, Adaptive Learning from Noisy Estimated Depth
+Maps Benefits Monocular RGB-based 3D Human Pose Estimation, Pattern Recognition (2026), doi:
+https://doi.org/10.1016/j.patcog.2026.113530
+
+
+
+
+This is a PDF of an article that has undergone enhancements after acceptance, such as the ad-
+dition of a cover page and metadata, and formatting for readability. This version will undergo addi-
+tional copyediting, typesetting and review before it is published in its final form. As such, this ver-
+sion is no longer the Accepted Manuscript, but it is not yet the definitive Version of Record; we are
+providing this early version to give early visibility of the article. Please note that Elsevier’s sharing
+policy for the Published Journal Article applies to this version, see: https://www.elsevier.com/about/
+policies-and-standards/sharing#4-published-journal-article. Please also note that, during the produc-
+tion process, errors may be discovered which could affect the content, and all legal disclaimers that
+apply to the journal pertain.
+
+© 2026 Published by Elsevier Ltd.
+Highlights
+
+  • Explicit depth modeling alleviates depth ambiguity in monocular RGB-
+    based estimation.
+
+  • Adaptive multi-sampling handles noisy 2D pose input by dynamic points
+    adjustment.
+
+  • Joint-wise uncertainty estimation enables depth features to self-enhancing.
+
+  • The model achieves state-of-the-art performance on standard bench-
+    mark
+
+
+
+
+                                    1
+ Adaptive Learning from Noisy Estimated Depth Maps
+   Benefits Monocular RGB-based 3D Human Pose
+                      Estimation
+                            Mengyuan Liua , Jingting Liua,
+ a
+     State Key Laboratory of General Artificial Intelligence, Peking University, Shenzhen
+                                 Graduate School, China
+
+
+
+
+Abstract
+
+Monocular RGB-based 3D human pose estimation has broad applications
+in human-centric scenarios. Mainstream methods follow a 2D-to-3D lifting
+pipeline, that first infers a 2D pose from RGB images then lifts it to 3D.
+However, this pipeline still struggles with depth ambiguity, despite recent
+advances in implicitly inferring depth cues from RGB images or temporal
+information from 2D pose sequences. Inspired by recent advances in ded-
+icated depth estimation, this paper aims to explicitly incorporate depth
+cues through estimated depth maps to reduce depth ambiguity.                       Never-
+theless, such estimated depth maps often suffer from substantial irrelevant
+background and noise. To address these two issues, we propose the Adap-
+tive Sample and Fusion Network (ASFnet). First, we present an Adaptive
+Multi-Sampling (AMS) module that utilizes estimated 2D poses as guid-
+ance to focus on pose-relevant depth information. To reduce the influence of
+2D pose noise, AMS adaptively adjusts sampling points and weights using
+both the depth map and 2D pose, focusing on informative regions. Sec-
+
+     ∗
+    Corresponding author
+    Email addresses: liumengyuan@pku.edu.cn (Mengyuan Liu), @stu.pku.edu.cn
+(Jingting Liu)
+
+
+
+Preprint submitted to Pattern Recognition                                  March 17, 2026
+ond, we propose an Uncertainty-aware Depth Enhancer (UDE) module to
+adaptively fuse depth features by suppressing depth map noise. Guided
+by a heteroscedastic uncertainty loss, UDE estimates the mean and vari-
+ance of depth features for each joint, with variance indicating uncertainty
+to filter unreliable information. Subsequently, the adjusted depth features
+and 2D poses are integrated via a Multimodal Interaction Transformer us-
+ing cross-modal attention. Extensive experiments on Human3.6M and MPI-
+INF-3DHP verify our method’s effectiveness. Our code is available at https:
+//github.com/liujingtingdev/ASFnet.
+Keywords: Human Pose Estimation; Depth Ambiguity; Uncertainty-Aware
+Learning.
+
+
+1. Introduction
+
+   Monocular RGB-based 3D human pose estimation aims to infer 3D poses
+from single-view images, playing a vital role in human-centric applications
+such as content generation [1, 2] and action recognition [3, 4]. With the ad-
+vancement of robust 2D pose detectors [5] and the availability of large-scale
+3D motion capture datasets [6], the dominant 2D-to-3D lifting pipeline first
+infers 2D poses from RGB images and then lifts them to 3D. However, this
+pipeline remains fundamentally ill-posed due to depth ambiguity—multiple
+3D poses can project to identical 2D observations. While existing methods
+have made progress, those relying solely on 2D keypoints [7, 8] or spatial
+context features [9] fail to resolve this ambiguity. Even methods that employ
+explicit depth modeling [10, 11] are constrained by coarse ordinal relations
+and simply fuse the estimated depth cues with 2D poses, which cannot pro-
+vide the precise depth information required for 3D pose estimation.
+   A promising direction is to incorporate a dedicated depth estimator to
+
+
+                                     3
+          2D Pose           2D pose
+          Detector
+                                                Lifting Model
+
+
+
+                                          (a) Traditional Flow
+
+
+
+          2D Pose           2D pose             Depth-Aware
+          Detector                              Lifting Model
+
+                      ...                                        Enhanced depth feature
+
+
+
+                               Adaptive                                                     Depth
+           Depth
+                                Multi-                    MLP                              Feature
+          Estimator
+                               Sampling                                                   Enhancer
+
+
+
+
+                                      (b) Our Depth-Aware Flow
+
+Figure 1: Comparison between traditional lifting methods and our depth-aware
+approach for monocular RGB-based 3D human pose estimation. Traditional
+lifting methods (a) estimate 3D pose by lifting 2D poses extracted from RGB images,
+relying solely on planar information and suffering from depth ambiguity. Our method (b)
+incorporates a dedicated depth estimator to capture explicit depth cues from the RGB
+image, mitigating this ambiguity. We propose Adaptive Multi-Sampling to dynamically
+focus on pose-relevant regions, improving feature extraction despite noisy 2D poses. The
+Uncertainty-aware Depth Enhancer further refines depth features by suppressing noise.
+Finally, fused depth and 2D features enable our model to regress more accurate 3D pose.
+
+extract depth maps, providing direct and precise depth constraints to alle-
+viate ambiguity. However, this approach introduces two critical challenges.
+First, to extract pose-relevant information from the whole depth map, a
+straightforward strategy is to sample the depth map at estimated 2D joint
+locations. Inaccuracies in the 2D pose can lead to misaligned sampling, prop-
+agating erroneous depth features to the 3D pose. Second, the depth maps
+themselves inevitably contain noise due to estimation errors, especially un-
+der challenging conditions like motion blur or occlusion. To address these
+challenges, we propose a novel depth-aware framework whose core novelty
+lies in the synergistic combination of two dedicated modules, each designed
+to tackle a distinct fundamental weakness. As illustrated in Figure 1 (b), our
+solution directly maps a dedicated module to each challenge: the Adaptive
+Multi-Sampling (AMS) module tackles spatial misalignment by dynamically
+
+
+                                                    4
+adjusting sampling points around estimated 2D joints to extract reliable
+pose-relevant depth features. Concurrently, the Uncertainty-aware Depth
+Enhancer (UDE) module suppresses depth noise by explicitly modeling the
+uncertainty of each joint’s depth features, self-adaptively emphasizing reli-
+able cues and suppressing noisy ones. By integrating these two modules,
+our framework establishes a robust pipeline that directly addresses the two
+distinct weaknesses in depth-aware pose estimation, transforming raw depth
+maps into informative and reliable cues.
+   Specifically, to address the challenge of extracting reliable pose-relevant
+depth features in the presence of noisy 2D poses, AMS adaptively learns a
+set of offsets and weights from both the depth map and the estimated 2D
+pose, and uses them to perform flexible multi-sampling from the depth map.
+This design allows dynamic adjustment of sampling points during training.
+By doing so, AMS enables the model to capture rich pose-relevant depth
+information while mitigating the impact of errors in the 2D pose estimation.
+   Furthermore, to suppress inherent depth noise and improve robustness
+under varying qualities of depth estimation. UDE predicts a distribution
+over the sampled depth features for each joint by estimating the expected
+value as the depth reference and the variance as the corresponding uncer-
+tainty. This uncertainty is then utilized to enhance the depth features by
+emphasizing reliable information and suppressing noise. To achieve this, we
+formulate the refinement process as a heteroscedastic uncertainty learning
+task, where the depth distribution of each joint is constrained through a
+probabilistic loss function. The resulting variance matrix explicitly quanti-
+fies the measurement uncertainty, allowing the model to self-adaptively boost
+informative depth cues. By incorporating this uncertainty-aware refinement,
+UDE significantly improves the stability and reliability of depth features in
+
+
+                                      5
+

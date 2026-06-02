@@ -2,6 +2,7 @@ import numpy as np
 
 import torch
 from torch import nn
+import torch.nn.functional as F
 
 
 def UNCERTAINTY(sigma_list, keypoints_pred, keypoints_gt):
@@ -47,8 +48,8 @@ class BNNLoss(nn.Module):
         #                 keypoints_gt*10,
         #                 beta=0.0)  # Shape: (batch_size, K)
         diff = (keypoints_pred - keypoints_gt)*100
-        print("diff",diff)
-        print("s",s)
+        #print("diff",diff)
+        #print("s",s)
         loss_depth_reg = 0.5 * torch.exp(-s) * diff ** 2  # Shape: (batch_size, K)
 
         loss_covariance_regularize = 0.5 * s
@@ -57,6 +58,93 @@ class BNNLoss(nn.Module):
         loss_depth_reg = torch.mean(loss_depth_reg)
         
         return loss_depth_reg
+
+
+class DepthLayoutLoss(nn.Module):
+    """Continuous root-relative depth layout loss for LDSR."""
+    def __init__(self, eps=1e-6):
+        super().__init__()
+        self.eps = eps
+
+    def _prepare_gt(self, keypoints_3d_gt):
+        if keypoints_3d_gt.dim() == 4:
+            if keypoints_3d_gt.shape[1] != 1:
+                raise ValueError("DepthLayoutLoss expects a single-frame target or [B,J,3].")
+            keypoints_3d_gt = keypoints_3d_gt.squeeze(1)
+        if keypoints_3d_gt.dim() != 3 or keypoints_3d_gt.shape[-1] < 3:
+            raise ValueError("DepthLayoutLoss target must have shape [B,J,3] or [B,1,J,3].")
+        return keypoints_3d_gt
+
+    def build_target(self, keypoints_3d_gt):
+        keypoints_3d_gt = self._prepare_gt(keypoints_3d_gt)
+        z = keypoints_3d_gt[..., 2]
+        z = z - z.mean(dim=1, keepdim=True)
+        z = z / z.std(dim=1, unbiased=False, keepdim=True).clamp_min(self.eps)
+        return torch.tanh(z.unsqueeze(2) - z.unsqueeze(1))
+
+    def forward(self, rel_pred, keypoints_3d_gt):
+        if rel_pred.dim() == 4 and rel_pred.shape[-1] == 1:
+            rel_pred = rel_pred.squeeze(-1)
+        if rel_pred.dim() != 3 or rel_pred.shape[1] != rel_pred.shape[2]:
+            raise ValueError("DepthLayoutLoss prediction must have shape [B,J,J].")
+
+        target = self.build_target(keypoints_3d_gt).to(device=rel_pred.device, dtype=rel_pred.dtype)
+        if rel_pred.shape != target.shape:
+            raise ValueError("DepthLayoutLoss prediction and target shapes do not match.")
+
+        b, j, _ = rel_pred.shape
+        mask = ~torch.eye(j, device=rel_pred.device, dtype=torch.bool).unsqueeze(0)
+        mask = mask.expand(b, -1, -1)
+        return F.smooth_l1_loss(rel_pred[mask], target[mask])
+
+
+class DepthOrderingLoss(nn.Module):
+    """Pairwise ordinal supervision for DLST relative-depth matrices."""
+    def __init__(self, margin=0.05, temperature=1.0, logit_scale=4.0, auto_unit=True):
+        super().__init__()
+        self.margin = margin
+        self.temperature = temperature
+        self.logit_scale = logit_scale
+        self.auto_unit = auto_unit
+
+    @staticmethod
+    def _extract_z(keypoints_3d_gt):
+        gt = keypoints_3d_gt
+        if gt.dim() == 4:
+            gt = gt.squeeze(1)
+        if gt.dim() == 3:
+            if gt.shape[-1] == 3:
+                return gt[..., 2]
+            if gt.shape[-1] == 1:
+                return gt[..., 0]
+        if gt.dim() == 2:
+            return gt
+        raise ValueError("Unsupported keypoints_3d_gt shape: {}".format(tuple(keypoints_3d_gt.shape)))
+
+    def forward(self, rel_depth, keypoints_3d_gt):
+        if rel_depth.dim() != 3 or rel_depth.shape[1] != rel_depth.shape[2]:
+            raise ValueError("DepthOrderingLoss prediction must have shape [B,J,J].")
+
+        z = self._extract_z(keypoints_3d_gt).to(device=rel_depth.device, dtype=rel_depth.dtype)
+        # diff[b, i, j] = z_j - z_i. Positive means joint i is closer/front.
+        diff = z.unsqueeze(1) - z.unsqueeze(2)
+
+        margin = self.margin
+        if self.auto_unit:
+            with torch.no_grad():
+                if z.detach().abs().median() > 10.0 and margin < 1.0:
+                    margin = margin * 1000.0
+
+        b, j, _ = rel_depth.shape
+        eye = torch.eye(j, device=rel_depth.device, dtype=torch.bool).unsqueeze(0).expand(b, -1, -1)
+        valid = (diff.abs() > margin) & (~eye)
+        target = diff.sign()
+        logits = rel_depth * (self.logit_scale / self.temperature)
+        loss = F.softplus(-target * logits)
+
+        if valid.any():
+            return loss[valid].mean()
+        return rel_depth.sum() * 0.0
 
 class P_MPJPE(nn.Module):
 	def __init__(self):

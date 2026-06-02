@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="520" viewBox="0 0 1180 520">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,4 L0,8 Z" fill="#111"/>
+    </marker>
+    <style>
+      .line { stroke: #111; stroke-width: 2.2; fill: none; marker-end: url(#arrow); }
+      .thin { stroke: #111; stroke-width: 1.8; fill: none; marker-end: url(#arrow); }
+      .box { stroke: #111; stroke-width: 1.7; rx: 8; ry: 8; }
+      .small { font: 17px "Times New Roman", Times, serif; fill: #111; }
+      .label { font: 18px "Times New Roman", Times, serif; fill: #111; }
+      .tiny { font: 14px Arial, sans-serif; fill: #111; }
+      .blocktext { font: 15px Arial, sans-serif; fill: #111; }
+      .caption { font: 22px "Times New Roman", Times, serif; fill: #111; font-weight: 600; }
+    </style>
+  </defs>
+
+  <rect width="1180" height="520" fill="#fff"/>
+
+  <!-- Inputs -->
+  <rect x="22" y="82" width="26" height="72" fill="#ffc21a" stroke="#111" stroke-width="1.6"/>
+  <text x="16" y="72" class="label">D<tspan baseline-shift="super" font-size="12">DLST</tspan></text>
+  <rect x="22" y="312" width="26" height="72" fill="#5aa0d8" stroke="#111" stroke-width="1.6"/>
+  <text x="20" y="405" class="label">R<tspan baseline-shift="sub" font-size="12">l</tspan></text>
+  <text x="10" y="428" class="tiny">l = 1,...,4</text>
+
+  <!-- Normalization/projection branches -->
+  <rect class="box" x="86" y="94" width="48" height="48" fill="#d7e3f4"/>
+  <text x="98" y="124" class="blocktext">LN</text>
+  <rect class="box" x="166" y="76" width="66" height="84" fill="#bfc5ff"/>
+  <text x="184" y="124" class="blocktext" transform="rotate(-90 199 118)">Linear</text>
+  <rect class="box" x="268" y="78" width="72" height="80" fill="#ffc895"/>
+  <text x="286" y="125" class="blocktext" transform="rotate(-90 304 118)">DW-Conv</text>
+
+  <rect class="box" x="86" y="324" width="48" height="48" fill="#d7e3f4"/>
+  <text x="98" y="354" class="blocktext">LN</text>
+  <rect class="box" x="166" y="306" width="66" height="84" fill="#bfc5ff"/>
+  <text x="184" y="354" class="blocktext" transform="rotate(-90 199 348)">Linear</text>
+  <rect class="box" x="268" y="308" width="72" height="80" fill="#ffc895"/>
+  <text x="286" y="355" class="blocktext" transform="rotate(-90 304 348)">DW-Conv</text>
+
+  <path class="line" d="M48 118 H86"/>
+  <path class="line" d="M134 118 H166"/>
+  <path class="line" d="M232 118 H268"/>
+  <path class="line" d="M48 348 H86"/>
+  <path class="line" d="M134 348 H166"/>
+  <path class="line" d="M232 348 H268"/>
+
+  <!-- One-to-many expansion and pairwise modulation -->
+  <rect class="box" x="376" y="84" width="88" height="68" fill="#eef3ff"/>
+  <text x="388" y="109" class="blocktext">expand</text>
+  <text x="388" y="130" class="blocktext">to 4 RGB</text>
+  <path class="line" d="M340 118 H376"/>
+
+  <circle cx="506" cy="232" r="22" fill="#e7f1ff" stroke="#111" stroke-width="1.8"/>
+  <text x="499" y="238" class="label">x</text>
+  <path class="thin" d="M464 118 C486 118 506 156 506 210"/>
+  <path class="thin" d="M340 348 C400 348 466 302 488 247"/>
+
+  <rect x="556" y="196" width="72" height="72" fill="#b8b8b8" stroke="#111" stroke-width="1.7"/>
+  <path d="M580 196 V268 M604 196 V268 M556 220 H628 M556 244 H628" stroke="#111" stroke-width="1.2"/>
+  <text x="548" y="184" class="tiny">pairwise grid</text>
+  <path class="line" d="M528 232 H556"/>
+
+  <circle cx="676" cy="232" r="22" fill="#e7f1ff" stroke="#111" stroke-width="1.8"/>
+  <text x="670" y="238" class="label">+</text>
+  <path class="line" d="M628 232 H654"/>
+  <path class="thin" d="M340 348 C492 382 608 354 668 254"/>
+  <text x="655" y="188" class="label">R<tspan baseline-shift="super" font-size="12">p</tspan><tspan baseline-shift="sub" font-size="12">l</tspan></text>
+
+  <!-- Depth-anchor update -->
+  <rect class="box" x="496" y="54" width="150" height="58" fill="#dff1e5"/>
+  <text x="510" y="80" class="blocktext">level-weighted</text>
+  <text x="527" y="101" class="blocktext">depth update</text>
+  <path class="thin" d="M48 118 C210 28 366 28 496 72"/>
+  <path class="thin" d="M340 348 C450 308 496 166 548 112"/>
+  <text x="664" y="82" class="label">D<tspan baseline-shift="super" font-size="12">p</tspan></text>
+  <path class="line" d="M646 83 H718"/>
+
+  <!-- Compact grid and SS2D -->
+  <rect class="box" x="718" y="184" width="110" height="96" fill="#eef3ff"/>
+  <text x="738" y="214" class="blocktext">concat grid</text>
+  <text x="732" y="238" class="blocktext">[R<tspan baseline-shift="super" font-size="10">p</tspan><tspan baseline-shift="sub" font-size="10">1..4</tspan>, D<tspan baseline-shift="super" font-size="10">p</tspan>]</text>
+  <text x="749" y="262" class="tiny">5 x J tokens</text>
+  <path class="line" d="M698 232 H718"/>
+  <path class="thin" d="M718 83 C748 112 764 146 772 184"/>
+
+  <rect class="box" x="860" y="188" width="78" height="88" fill="#c9d6fb"/>
+  <text x="880" y="238" class="blocktext">SS2D</text>
+  <path class="line" d="M828 232 H860"/>
+
+  <!-- Gated branch fusion -->
+  <rect class="box" x="970" y="76" width="72" height="80" fill="#bfc5ff"/>
+  <text x="987" y="124" class="blocktext" transform="rotate(-90 1006 116)">Linear</text>
+  <circle cx="1068" cy="158" r="20" fill="#e7f1ff" stroke="#111" stroke-width="1.8"/>
+  <text x="1062" y="164" class="label">x</text>
+  <text x="1086" y="154" class="label">H<tspan baseline-shift="super" font-size="12">D</tspan><tspan baseline-shift="sub" font-size="12">l</tspan></text>
+
+  <rect class="box" x="970" y="316" width="72" height="80" fill="#bfc5ff"/>
+  <text x="987" y="364" class="blocktext" transform="rotate(-90 1006 356)">Linear</text>
+  <circle cx="1068" cy="314" r="20" fill="#e7f1ff" stroke="#111" stroke-width="1.8"/>
+  <text x="1062" y="320" class="label">x</text>
+  <text x="1086" y="322" class="label">H<tspan baseline-shift="super" font-size="12">R</tspan><tspan baseline-shift="sub" font-size="12">l</tspan></text>
+
+  <path class="thin" d="M938 232 C958 208 970 170 970 116"/>
+  <path class="thin" d="M938 232 C958 256 970 300 970 356"/>
+  <path class="thin" d="M646 83 C822 44 940 58 970 104"/>
+  <path class="thin" d="M698 232 C818 310 905 360 970 356"/>
+  <path class="thin" d="M938 232 C1000 230 1052 206 1063 178"/>
+  <path class="thin" d="M938 232 C1002 236 1054 276 1064 294"/>
+
+  <circle cx="1124" cy="236" r="22" fill="#e7f1ff" stroke="#111" stroke-width="1.8"/>
+  <text x="1118" y="242" class="label">+</text>
+  <path class="line" d="M1088 158 C1110 176 1120 202 1123 214"/>
+  <path class="line" d="M1088 314 C1110 296 1120 270 1123 258"/>
+
+  <rect class="box" x="930" y="210" width="72" height="52" fill="#bfc5ff"/>
+  <text x="945" y="242" class="blocktext">Linear</text>
+  <rect class="box" x="1022" y="210" width="58" height="52" fill="#bfe7c7"/>
+  <text x="1038" y="242" class="blocktext">ECA</text>
+  <path class="line" d="M1002 236 H1022"/>
+  <path class="line" d="M1080 236 H1102"/>
+  <path class="thin" d="M938 232 H930"/>
+
+  <path class="line" d="M1146 236 H1168"/>
+  <text x="1152" y="220" class="label">X<tspan baseline-shift="sub" font-size="12">l</tspan></text>
+
+  <!-- Gate path annotation -->
+  <rect class="box" x="372" y="398" width="180" height="58" fill="#f5e5ff"/>
+  <text x="390" y="423" class="blocktext">Gate MLP</text>
+  <text x="390" y="444" class="tiny">[R_l, D, R_l x D, R_l-D, e_l]</text>
+  <path class="thin" d="M340 348 C372 356 392 378 408 398"/>
+  <path class="thin" d="M464 118 C420 220 438 320 452 398"/>
+  <path class="thin" d="M552 427 C606 424 650 380 672 254"/>
+
+  <text x="376" y="493" class="caption">Depth-anchor guided One-to-Many Cross-Modality Fusion Mamba (O2M-CMFM)</text>
+</svg>

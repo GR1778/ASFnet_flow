@@ -1,0 +1,698 @@
+                                                        [ J×N2×N1×1]
+                                             Weights                                                weights
+                                              Head
+
+                 Sample
+                                                          weights
+
+
+
+
+                               [ J×Cfuse ]
+                  Grid                                              N2
+                                                                           .........     Grid
+                                             Offsets
+                                             Head                      +     .......    Sample
+                                                                                           +          ×
+                            Pose                                                       Projection
+                          embedding                     [ J×N2×N1×2]
+                                                                                                                 [ J×Cfuse ]
+
+
+
+
+                : Add+Norm                       : Ground truth                 : Detected by 2D pose detector
+
+Figure 3: Overview of our Adaptive Multi-Sampling (AMS) module, which adap-
+tively learns offsets and weights to generate multiple sets of sampling points with varying
+importance, enabling it to capture more pose-related information. AMS overcomes the
+limitation of relying solely on the estimated 2D pose, which is constrained by the accuracy
+of the 2D pose estimator. For better visualization, we apply Gaussian blur to convert the
+sampled joints into heatmaps, where higher weights correspond to brighter colors.
+
+plies dropout for regularization, producing embedded pose features P′ ∈
+RB×J×Cf use .
+    Adaptive Multi-Sampling. The structure of AMS is shown in Figure 3.
+We use the estimated 2D pose and features to adaptively learn multiple sets
+of offsets ∆ ∈ RB×J×N2 ×N1 ×2 and corresponding weights W ∈ RB×J×N2 ×N1 ,
+where 2 represents the x and y coordinates and N1 denotes the number of
+offsets or weights in one head. There are a total of N2 heads, and each
+head adaptively learns distinct sampling points from depth maps, enabling
+features to capture both joint locations and surrounding context for richer
+pose information. The offsets are then added to the initial 2D pose to obtain
+sampling points, with the process formulated as:
+
+
+                                             H = Norm(D′ + P′ ),                                                               (1)
+
+
+                                                       ∆ = θo (H),                                                             (2)
+
+                                                       W = θw (H),                                                             (3)
+
+
+
+                                                             11
+where θo and θw denote the Offsets Head and Weights Head respectively.
+Both operations are implemented as fully connected layers. Specifically, the
+Weights Head generates attention weights, which are then normalized by soft-
+max. The Offsets Head produces sampling offsets, which are subsequently
+transformed by a tanh activation. D′ denotes the initial sampled depth fea-
+tures, obtained by sampling from the initial 2D pose. To align the dimensions
+with the 2D pose, an initial sampling operation is performed on D, ensuring
+that the features are consistent with the pose’s spatial representation.
+   Then, these offset sampling points are used to sample the input feature
+maps, and finally, the sampled features are weighted according to the learned
+weights, resulting in the depth features Fd ∈ RB×J×Cf use . The process is
+formulated as:
+                     Dsample = GridSample(D, ∆ + P),                        (4)
+
+                        Fd = Projection(Dsample ) · W,                      (5)
+
+The GridSample operation samples the feature map within the normalized
+coordinate range of [−1, 1], with coordinates outside this range yielding zero-
+valued features. The Projection(·) refers to a linear layer that maps the
+sparsely sampled points to the feature space.
+   The above formulation is illustrated using depth maps as an example.
+Similarly, we perform the same operations on image features that have been
+extracted by the 2D detector, yielding the feature set {Fs ∈ RB×J×Cf use }Ss=1 .
+   Forward Pass. The Adaptive Multi-Sampling (AMS) module structure
+is shown in Figure 3 and implemented in Algorithm 1. Taking the em-
+bedded pose P′ and initial sampled depth features D′ (both in RB×J×Cfuse )
+as input, AMS first fuses them via addition and normalization. From this
+unified representation, it predicts sampling configurations across N2 inde-
+
+
+                                      12
+ Algorithm 1: Forward pass of Adaptive Multi-Sampling (AMS)
+ module
+     Input: The estimated 2D pose P, depth feature map D, and corresponding Embedded pose
+            P′ ∈ RB×J×Cfuse , initial sampled depth features D′ ∈ RB×J×Cfuse
+     Output: Refined depth features Fd ∈ RB×J×Cfuse
+ 1 Fd ← D′
+ 2 for t = 1 to iterations do
+ 3      Ffuse ← AddNorm(P′ + Fd )
+ 4      ∆ ← θo (Ffuse )                                                       // ∆ ∈ RB×J×N2 ×N1 ×2
+ 5      W ← θw (Ffuse )                                                         // W ∈ RB×J×N2 ×N1
+ 6      L←P+∆                                                          // Compute sampling locations
+ 7      Dsample ← GridSample(D, L)                                                // Sample features
+ 8      D′sample ← Projection(Dsample )                         // Project to RB×J×N2 ×N1 ×(Cfuse /N2 )
+              P 1
+ 9      Fd ← N                           ′
+                 n1 =1 W[. . . , n1 ] ⊙ Dsample [. . . , n1 ]
+10      Fd ← ConcatHeads(Fd )
+11 end
+
+
+
+
+pendent heads, with each head yielding N1 outputs, generating offset vectors
+∆ ∈ RB×J×N2 ×N1 ×2 and corresponding attention weights W ∈ RB×J×N2 ×N1 .
+Sampling locations are computed by adding ∆ to the original 2D pose coor-
+dinates P. A grid sampler subsequently samples the depth feature map D
+at these N2 × N1 points per joint. The sampled features are then projected
+to a dimension of RB×J×N2 ×N1 ×(Cfuse /N2 ) and aggregated via a weighted sum
+over the N1 dimension using the attention weights W, ultimately producing
+the refined output Fd ∈ RB×J×Cfuse . This AMS module is stacked four times
+to enable progressive feature refinement.
+
+3.3. Uncertainty-aware Depth Enhancer (UDE)
+
+     Depth maps obtained from monocular depth estimation models often suf-
+fer from inherent noise due to limited precision. Directly fusing the sampled
+depth features with other modalities (e.g., RGB features or 2D pose) may
+propagate unreliable depth information. To address this challenge, we pro-
+pose an Uncertainty-aware Depth Enhancer (UDE) that dynamically mod-
+ulates the depth features before fusion based on their reliability. Inspired
+by uncertainty modeling[30] in computer vision, we explicitly model the un-
+
+
+                                                         13
+certainty of depth features at each joint to evaluate their reliability (higher
+uncertainty indicates noisier features), making UDE is able to adaptively op-
+timize the depth features based on uncertainty, thereby improving stability
+against depth map imperfections.
+   We formulate depth feature enhancement as a probabilistic learning prob-
+lem. For each joint j, we assume its depth feature follows a Gaussian dis-
+tribution N (µj , σj2 ), where µj represents the estimated depth value, which
+                                   (j)
+relies solely on depth features Fd , and σj2 quantifies its uncertainty. To en-
+sure numerical stability, the network regresses the log-variance sj = log σj2
+instead of directly predicting σj2 :
+
+                                              (j)
+                                µj = Headµ (Fd ),                            (6)
+
+                                              (j)
+                                sj = Heads (Fd ),                            (7)
+
+where Headµ and Heads share identical architectures, each comprising a MLP
+with GeLU activations. µ, s ∈ RB×J×1 .
+   To enable dynamic enhancement of depth features Fd by coarse depth es-
+timates µ and uncertainty scores s, we first project these scalars into learnable
+high-dimensional embeddings: Fcat
+                              d   = Concat(Fd , DEmbed(µ), UMap(s)).
+Here, DEmbed(·) denotes the Depth Embed module—a linear projection
+layer with positional encoding that maps inputs to spatially-aware feature
+embeddings. UMap(·) refers to the Uncertainty Mapper—a linear projection
+layer with softmax activation that generates uncertainty score maps.
+   The Depth Feature Enhancement module then adaptively refines Fcat
+                                                                 d
+
+through multi-head self-attention (MSA) and MLP projection. During re-
+finement, uncertainty scores and coarse depth values guide the network to
+amplify reliable depth cues while suppressing noisy regions via uncertainty-
+
+
+                                         14
+ Algorithm 2: Forward pass of Uncertainty-aware Depth Enhancer
+ (UDE) Module
+     Input: Refined depth features Fd ∈ RB×J×Cfuse
+     Output: Enhanced depth features F   e d ∈ RB×J×Cfuse
+ 1   µ ← Headµ (Fd )                                                            // µ ∈ RB×J×1
+ 2   s ← Heads (Fd )                                                            // s ∈ RB×J×1
+ 3   Fcat
+       d ← [Fd ; DEmbed(µ); UMap(s)]
+ 4   Fattn
+       d   ← MSA(Fcatd ) + Fd
+                              cat                   // Multi-head self-attention with residual
+ 5   e d ← MLP(F
+     F            attn ) + Fattn  return e d , µ, s
+                                         F
+                  d         d
+
+
+
+
+aware modulation. Implementation proceeds as follows:
+
+
+                               Fattn
+                                d    = MSA(Fcat    cat
+                                            d ) + Fd ,
+                                                                                                 (8)
+
+
+                               e d = MLP(Fattn ) + Fattn .
+                               F                                                                 (9)
+                                          d         d
+
+
+     Forward Pass. We implement the UDE module following Algorithm
+2. As shown in Figure 2, the forward pass of the UDE module operates as
+follows. It takes the depth features Fd ∈ RB×J×Cfuse from AMS as input.
+First, two MLP heads predict the coarse depth µ ∈ RB×J×1 and log-variance
+s ∈ RB×J×1 for each joint. These scalars are then projected into the feature
+space and concatenated with Fd to form Fcat
+                                        d   ∈ RB×J×(3×Cfuse ) . Finally, a
+multi-head self-attention block processes this concatenated feature to output
+                           e d ∈ RB×J×Cfuse .
+the enhanced depth feature F
+
+3.4. Transformer Regressor
+
+     Our Transformer-based regression network (Figure 2) comprises: a Mul-
+timodal Interaction Transformer for fusing pose, image, and depth features;
+a Spatial Transformer for learning global pose representations; and a regres-
+sion head for 3D coordinate prediction. Following AMS and UDE, all feature
+sets are unified in dimensionality and spatial representation for subsequent
+                                             e d ) as F ∈ RB×J×(S+2)×Cf use .
+processing. We concatenate (P′ , {Fs }Ss=1 , F
+
+
+                                                15
+   Multimodal Interaction Transformer. The input feature F is struc-
+tured as a B × J × (S + 2) × Cf use tensor via stacking, where each joint
+corresponds to S + 2 tokens containing tri-modal information. Inspired by
+multi-modality models that fuse visual and language tokens, we employ a uni-
+fied transformer encoder to model interactions between 2D pose, depth, and
+image features. This enables capturing complex cross-modal dependencies
+and thereby enriches the joint representations. The module implementation
+proceeds as follows:
+
+
+                       F′n          n−1
+                        j = MSA(LN(Fj   )) + Fjn−1 ,                        (10)
+
+
+                           Fnj = MLP(F′n     ′n
+                                      j ) + Fj ,
+                                                                            (11)
+
+where j(1 . . . J) denotes the index of the joint, indicating that feature fusion
+is performed for each joint. MSA(·) stands for Multi-head Self-Attention.
+In MSA, input tokens are linearly mapped to Queries Q ∈ RB×(S+2)×(C/h) ,
+Keys K ∈ RB×(S+2)×(C/h) , and Values V ∈ RB×(S+2)×(C/h) , h represents the
+number of attention heads. Multi-head Attention can be formulated as:
+
+                                                     
+                                             Q · K⊤
+                       headi = softmax        √           · V,              (12)
+                                                 d
+                 MSA(Q, K, V) = Concat(headi , ..., headh ).                (13)
+
+   A Spatial Transformer then captures global pose context, reshaping fea-
+tures to F ∈ RB×J×(S+2)·Cf use to model skeletal relationships. The final pose
+is generated by a regression head with linear projection.
+
+
+
+
+                                       16
+3.5. Loss Function
+
+   Our network is trained using L2 loss to minimize the errors between
+prediction and the ground truth:
+
+                                        J
+                                     1X
+                             L3D =         ∥ŷj − yj ∥2 ,                    (14)
+                                     J j=1
+
+where ŷj and yj represent the predicted and ground-truth 3D pose of joint j,
+respectively, and J is the total number of human body joints. In addition to
+supervise the uncertainty of the depth features, we introduce Heteroscedastic
+Uncertainty Loss (HeteroLoss) as Ld . We do not need ’uncertainty labels’
+to learn uncertainty. Rather, we only need to supervise the learning of the
+regression task. We learn the log-variance s implicitly from the loss function:
+
+                         J                                   
+                    1X           1                 depth 2 1
+               Ld =                exp(−sj )∥µj − yj    ∥ + sj ,             (15)
+                    J j=1        2                         2
+
+
+where yjdepth represents the ground-truth depth value of joint j. Specifically, it
+is defined as the Z-coordinate of the root-relative 3D ground-truth pose and is
+used in its original metric scale (millimeters) without further normalization.
+J denotes the total number of joints for a single person. We stabilize the
+uncertainty learning by (1) scaling 3D coordinate errors by 100, and (2)
+clipping log-variance sj to [−9.0, 9.0]. The total loss is as L = L3D + λd Ld ,
+where λd is weights for Ld .
+
+
+4. Experiments
+
+4.1. Datasets and Evaluation Metrics
+
+   We evaluate on three standard benchmarks under established protocols.
+Following previous methods [8, 9], on Human3.6M [12], we use subjects S1,
+
+                                         17
+S5, S6, S7, S8 for training and S9, S11 for testing, reporting MPJPE (Pro-
+tocol 1) and PA-MPJPE. On MPI-INF-3DHP [13], we use the indoor and
+outdoor benchmark with standard train/test split, reporting PCK@150mm,
+AUC, and MPJPE. On 3DPW [31], we evaluate on the challenging multi-
+person in-the-wild test set using MPJPE and PA-MPJPE.
+
+4.2. Implementation Details
+
+   We adopt HRNet-w32 [16] pre-trained on MS COCO [32] as our 2D de-
+tector and Depth-Anything V2 [33] for depth estimation. Both models are
+kept frozen during training without fine-tuning on 3D pose data. In line with
+previous works [9], we use CPN [5] to obtain the input 2D pose to ensure a
+fair comparison in the performance evaluation.
+   Training Configuration. Experiments are conducted on an NVIDIA
+RTX 4090 GPU using PyTorch. The model is trained for 30 epochs with
+a batch size of 64 and gradient accumulation over 4 steps (effective batch
+size 256). We used the AdamW optimizer with an initial learning rate
+of 6.4 × 10−4 , which is decayed by a factor of 0.99 after each epoch. All
+grid sampling uses nn.functional.grid sample with align corners=True and
+padding mode=’zeros’. For our core modules, the AMS module employs
+N2 = 4 heads with N1 = 5 sample points per head, a fusion dimension
+Cfuse = 128, and samples from S = 4 image feature scales. In the UDE
+module, the weight for the probabilistic depth loss is set to λd = 1 × 10−5 .
+
+4.3. Comparison with State-of-the-art Methods
+
+   Comparison on Human3.6M. Table 2 shows our method achieves
+SOTA on Human3.6M under Protocol 1 (38.4mm MPJPE) and Protocol
+2 (31.4mm PA-MPJPE). To ensure statistical reliability, we report the mean
+and standard deviation from multiple runs (MPJPE: 38.5 ± 0.14, PA-MPJPE:
+
+
+                                      18
+Table 2: Results on Human3.6M dataset in millimeters under Protocol 1&2. 2D pose
+detected by CPN [5] are used as input. Top-table: results under Protocol 1 (MPJPE).
+Bottom-table: results under Protocol 2 (PA-MPJPE). The best results are highlighted in
+bold, and the second-best are underlined. Ours achieves the best performance.
+  Protocol 1          Venue      Dir. Disc. Eat Greet Phone Photo Pose Purch.            Sit    SitD. Smoke Wait WalkD. Walk WalkT. Avg
+
+  Anatomy [34]      TCSVT’21     41.4   43.5   40.1   42.9   46.6   51.9   41.7   42.3   53.9   60.2   45.4   41.7   46.0   31.5   32.7   44.1
+  PoseFormer [35]    ICCV’21     41.5   44.8   39.8   42.5   46.5   51.6   42.1   42.0   53.3   60.7   45.5   43.3   46.1   31.8   32.2   44.3
+  Geometric [36]    TCSVT’23     45.3   51.8   46.4   49.9   51.4   57.6   49.1   46.5   59.1   67.9   51.0   48.9   53.0   38.0   40.6   50.4
+  CA-PF [9]         NeurlPS’23    -      -      -      -      -      -      -      -      -      -      -      -      -      -      -     41.4
+  DGFormer [7]        PR’24      46.3   50.3   45.7   50.5   50.8   57.5   49.6   46.0   55.8   63.8   50.9   47.8   53.0   38.7   41.3   49.8
+  GraphMLP [8]        PR’24      43.7   49.3   45.5   47.9   50.5   56.0   46.3   44.1   55.9   59.0   48.4   45.7   51.2   37.1   39.1   48.0
+  PSTR [28]         TCSVT’25     36.3   38.7   38.3   31.5   39.4   51.1   37.1   35.4   51.8   57.4   39.6   36.3   24.7   39.1   25.4   38.8
+
+  ASFnet (Ours)         -        34.0 37.5 34.9       38.5   39.7   44.2 33.6     35.3   45.6 51.5     40.0   37.6   39.8   30.6   32.3   38.4
+
+  Protocol 2          Venue      Dir. Disc. Eat Greet Phone Photo Pose Purch.            Sit    SitD. Smoke Wait WalkD. Walk WalkT. Avg
+
+  Anatomy [34]      TCSVT’21     32.6   35.1   32.8   35.4   36.3   40.4   32.4   32.3   42.7   49.0   36.8   32.4   36.0   24.9   26.5   35.0
+  PoseFormer [35]    ICCV’21     32.5   34.8   32.6   34.6   35.3   39.5   32.1   32.0   42.8   48.5   34.8   32.4   35.3   24.5   26.0   34.6
+  Geometric [36]    TCSVT’23     35.4   38.8   35.9   40.4   39.6   44.0   36.7   35.4   46.8   53.7   40.9   36.6   42.0   30.6   33.9   39.4
+  CA-PF [9]         NeurlPS’23    -      -      -      -      -      -      -      -      -      -      -      -      -      -      -     33.5
+  DGFormer [7]        PR’24      35.4   38.4   35.8   40.3   39.2   43.7   37.6   34.8   44.7   51.3   40.2   36.1   41.2   30.6   33.9   38.9
+  GraphMLP [8]        PR’24      35.1   38.2   36.5   39.8   39.8   43.5   35.7   34.0   45.6   47.6   39.8   35.1   41.1   30.0   33.4   38.4
+  PSTR [28]         TCSVT’25     29.2   31.9   31.3   26.4   36.6   37.7   28.8   29.6   40.3   47.3   37.6   29.4   24.1   28.9   24.7   32.3
+
+  ASFnet (Ours)         -        28.9 31.0 29.6       31.5   32.0   34.8 27.5     28.5   38.4 41.5     33.2   29.5   32.6   24.5   27.1   31.4
+
+
+Table 3: Results on Human3.6M dataset in millimeters under Protocol 1 (MPJPE).
+Ground truth 2D pose are used as input. The best results are highlighted in bold, and
+the second-best are underlined.
+  GT Protocol 1       Venue      Dir. Disc. Eat Greet Phone Photo Pose Purch. Sit SitD. Smoke Wait WalkD. Walk WalkT.                     Avg
+  Anatomy [34]      TCSVT’21      -     -    -    -     -     -    -     -     -    -     -    -     -     -     -                        32.3
+  PoseFormer [35]    ICCV’21     30.0 33.6 29.9 31.0 30.2    33.3 34.8 31.4 37.8 38.6 31.7 31.5 29.0 23.3 23.1                            31.3
+  Geometric [36]    TCSVT’23     30.0 35.5 30.1 31.9   34.8  37.3 35.4 31.7 39.5 42.9 33.3 34.4     34.6  28.5  29.9                      34.0
+  CA-PF [9]         NeurlPS’23   34.7 31.8 25.4 36.9   31.1 32.0 31.6 27.7 29.0 39.8 30.2 36.8      31.5  27.2  28.9                      31.7
+  DGFormer [7]        PR’24      31.5 34.3 28.2 32.2   31.3  36.8 37.0 29.4 34.9 37.8 31.8 32.5     33.0  26.7  28.9                      32.4
+  GraphMLP [8]        PR’24      32.2 38.2 29.3 33.4   33.5  38.1 38.2 31.7 37.3 38.5 34.2 36.1     35.5  28.0  29.3                      34.2
+  PSTR [28]         TCSVT’25      -     -    -    -     -     -    -     -     -    -     -    -     -     -     -                        31.5
+  ASFnet (Ours)          -       29.7 30.1 26.0 37.1 29.2 33.3 28.9 28.6 30.6 47.0 29.1 35.3        30.2  25.2  26.7                      31.2
+
+
+
+31.5 ± 0.09), confirming the consistency of our results. Our approach achieves
+20% error reduction (9.6mm absolute improvement) compared to GraphMLP
+among lifting-based methods, surpassing previous SOTA PSTR by 0.4mm.
+Against fusion methods, we outperform CA-PF by 3mm (7% relative im-
+provement). For PA-MPJPE, we establish new SOTA, outperforming the
+latest PSTR baseline by 0.9mm (2.8% relative improvement). These gains
+validate our depth feature modeling over conventional fusion approaches.
+To further investigate the lower bound of our framework, we conduct addi-
+tional experiments using the ground truth 2D pose as input under the same
+evaluation protocol 1. In Table 3, our method achieves a new benchmark of
+31.2mm MPJPE, surpassing other state-of-the-art approaches in this setting.
+
+                                                                     19
+Table 4: Comparison on MPI-INF-3DHP dataset with 2D ground truth inputs. PCK,
+AUC, and MPJPE are used as main evaluation metrics, with model complexity
+(Params/M, FLOPs/G) reported for reference. Best in bold, second-best underlined.
+                                                         FLOPs (G)
+         Method              Venue      Parameters(M)                 PCK (↑) AUC (↑) MPJPE (↓)
+                                                        for per Frame
+         Anatomy [34]      TCSVT’21         59.2              0.1      87.8    53.8     79.1
+         PoseFormer [35]    ICCV’21          9.6              1.4      94.3    62.7     59.7
+         Geometric [36]    TCSVT’23          2.4             0.04      96.7    75.6     38.2
+         CA-PF [9]         NeurIPS’23       14.1              0.3      98.0    75.4     32.7
+         DGFormer [7]        PR’24           4.3               -       85.5    53.6     80.4
+         GraphMLP [8]        PR’24            -               0.4      87.0    54.3      -
+         PSTR [28]         TCSVT’25         35.1               -       98.9    77.5     30.1
+         ASFnet (Ours)          -           20.4              0.4      98.3    77.1     29.4
+
+
+For instance, it outperforms the recent method PSTR [28], which achieves
+an MPJPE of 31.5mm, highlighting the effectiveness of our approach.
+   The cross-metric consistency observed across evaluation protocols (e.g.,
+MPJPE and PA-MPJPE) and input conditions (detected vs. ground-truth
+2D poses) demonstrates the stability of our depth feature modeling strategy.
+   Comparison on MPI-INF-3DHP. Table 4 compares our method with
+other state-of-the-art approaches on the MPI-INF-3DHP dataset [13], in
+terms of PCK, AUC, and MPJPE. We use ground truth 2D poses as input,
+following previous methods [8, 9]. Our method achieves the best performance
+with the MPJPE of 29.4mm, outperforming all compared methods. This in-
+cludes the state-of-the-art approach relies on 2D pose [28], and surpasses the
+image features fused method [9]. we further extend the evaluation to include
+model efficiency metrics. While maintaining moderate complexity (20.4M
+Params, 0.4G FLOPs), our method reduces MPJPE by 30.3mm compared to
+FLOPs-heavy PoseFormer [35] using only 29% computational budget. These
+results demonstrate optimal accuracy without extreme parameterization and
+strong generalization in challenging environments.
+   Comparison on 3DPW. As shown in Table 5, our model pretrained
+on Human3.6M achieves state-of-the-art performance on 3DPW. Our single-
+frame ASFnet surpasses all compared methods, demonstrating strong gener-
+alization. Notably, simply extending to a multi-frame setting (T=27) with
+
+                                                   20
+Table 5: Evaluation on the in-the-wild 3DPW dataset. Results are reported in MPJPE and
+PA-MPJPE (mm) using models trained on Human3.6M without fine-tuning. T denotes
+the number of input frames. Best results are in bold; second-best are underlined.
+                   Method            Venue    T MPJPE (↓) PA-MPJPE (↓)
+                   PoseFormer [35]  ICCV’21 81    118.2       73.1
+                   CA-PF [9]       NeurIPS’23 1   127.5       72.6
+                   DGFormer [7]      PR’24     1  154.9       77.6
+                   GraphMLP [8]      PR’24     1  140.5       66.7
+                   ASFnet (Ours)        -      1  116.4       62.9
+                   ASFnet (Ours)        -     27 108.8        60.1
+
+
+a temporal transformer further improves performance to 108.8 MPJPE and
+60.1 PA-MPJPE, underscoring the potential of integrating temporal model-
+ing to enhance robustness in complex in-the-wild scenarios.
+
+4.4. Ablation Study
+
+   Impact of Each Component. We conduct an ablation study to val-
+idate our depth-aware framework and its core components: the Adaptive
+Multi-Sampling (AMS) module for feature alignment and the Uncertainty-
+aware Depth Enhancer (UDE) for depth feature refinement.
+   As shown in Table 6, our Baseline follows prior fusion methods [9], tak-
+ing 2D pose coordinates and intermediate image features from a 2D pose
+detector. To align these two modalities, a straightforward single sampling
+operation is performed on the image feature map at the locations of the 2D
+joints. These aligned features are then processed through a spatial trans-
+former (e.g., a transformer encoder as in PoseFormer[35]) and an MLP head
+to estimate the final 3D poses, achieving an MPJPE of 41.5mm. Incor-
+porating depth features via a dedicated estimator with basic sampling and
+concatenation reduces MPJPE by 1.6mm. Integrating AMS further improves
+performance to 39.4mm by enhancing feature extraction effectiveness. No-
+tably, adding UDE alone yields limited improvement (40.2mm), revealing a
+key dependency: UDE’s uncertainty modeling requires the rich, accurately-
+located features provided by AMS. With single-sampled features, UDE lacks
+
+                                          21
+Table 6: Ablation study on key components of our depth-aware framework. Baseline
+refers to previous methods that solely rely on a 2D pose detector to generate 2D poses
+and image features. We ablate the following key components of our framework: AMS
+(Adaptive Multi-Sampling), and UDE (Uncertainty-aware Depth Enhancer). MPJPE is
+reported in millimeters.
+          Configuration                         Depth Features AMS UDE MPJPE (↓)
+          Baseline (2D pose + image features)        ×        ×    ×       41.5
+          + Depth features                           ✓        ×    ×   39.9 (↓ 1.6)
+          + Depth features + AMS                     ✓        ✓    ×   39.4 (↓ 2.1)
+          + Depth features + UDE                     ✓        ×    ✓   40.2 (↓ 1.3)
+          Full model (Ours)                          ✓        ✓    ✓   38.4 (↓ 3.1)
+
+
+
+sufficient input diversity and spatial precision, constraining its performance
+gain. Combining both modules achieves our best result (38.4mm MPJPE),
+where UDE’s noise suppression and adaptive fusion of AMS-refined features
+delivers a total 3.1mm improvement.
+   Impact of Depth Estimator Precision on Model Performance.
+Figure 4 demonstrates that our method ensures stable effectiveness across
+depth estimators of varying accuracies. A key observation is that the UDE
+module consistently enhances performance regardless of the estimator’s pre-
+cision, reducing the MPJPE for all three variants (V2S: 39.91→39.29; V2B:
+38.74→38.40; V2L: 38.65→38.56). This shows that UDE effectively miti-
+gates performance degradation from imperfect depth estimation. With the
+smallest depth estimator (Depth-Anything V2-Small, 39.3mm MPJPE), our
+full model achieves 5.3% lower error than the no-depth baseline (41.5mm),
+proving effective depth utilization even with limited estimator capacity. Fur-
+thermore, UDE reduces the performance gap between high- and low-precision
+depth estimators, enhancing pipeline robustness and enabling lighter estima-
+tors to be deployed with only marginal accuracy loss.
+   Table 7 compares inference speed on an NVIDIA RTX 4090 GPU. Specif-
+ically, integrating the Depth-Anything V2-Base depth estimator introduces
+an additional 7.3 ms per frame in Stage 1, representing a 24.7% increase
+
+
+                                                22
+                      40.25                      Stability to Depth Estimator Quality Variations
+                            39.91mm                                                                Ours (w/o UDE)
+                      40.00                                                                        Ours
+                      39.75
+                      39.50
+         MPJPE (mm)
+
+
+
+                      39.25
+                      39.00 39.29mm                                 38.74mm                               38.65mm
+                      38.75
+                      38.50
+                                                                                                          38.56mm
+                      38.25                                         38.40mm
+                      38.00
+                              V2 S                                    V2 B                                     V2 L
+                                      Depth-Anything Version
+Figure 4: Impact of depth estimator precision on 3D pose estimation accuracy (MPJPE
+in mm). Solid and dashed curves represent our full model and the baseline without UDE,
+respectively, both evaluated with three depth estimator variants (the Small, Base, and
+Large versions of Depth-Anything V2 [37]). Marker sizes correspond to depth estimator
+parameter counts. Our UDE module consistently improves performance across all esti-
+mators (e.g., V2S: 39.91→39.29; V2B: 38.74→38.40; V2L: 38.65→38.56). It demonstrates
+superior adaptability to depth estimator quality variations.
+Table 7: Comparison of inference time (measured on single NVIDIA RTX 4090 GPU)
+and MPJPE for our method with depth-independent methods. The additional overhead
+from integrating depth estimation is acceptable while providing significant performance
+improvements.
+                                      Stage 1: 2D + Depth Estimation (ms) Stage 2: Lifting Total inference
+ Model                                                                                                     MPJPE (↓)
+                                                                               (ms)          Time (ms)
+                                      2D Pose Est. Depth Est. Subtotal
+ CA-PF [9]                                29.6           -              29.6              5.2           33.1          41.4
+       ASFnet (Ours)
+                                          29.6          10.9            36.5              5.9           43.1          39.3
+ with Depth-Anything V2-Small
+       ASFnet (Ours)
+                                          29.6          23.8            36.9              5.9           43.2          38.4
+ with Depth-Anything V2-Base
+
+
+
+
+in time over the depth-independent baseline. Nevertheless, even with our
+depth-aware modules (AMS and UDE) in Stage 2, the total inference time
+rises by only 10.1 ms (from 33.1 ms to 43.2 ms), which demonstrates that the
+computational overhead introduced by depth estimation remains manageable
+and does not become a system-wide bottleneck. Moreover, our sparse multi-
+sampling (AMS) and Uncertainty Regression (UDE) introduce insignificant
+additional cost in the lifting stage (Stage 2), as reflected in the comparable
+lifting times (5.2 ms vs. 5.9 ms) and corroborated by the FLOPs/parameters
+compared with other mehtods reported in Table 4. Notably, we achieve
+optimal accuracy (38.4mm MPJPE) with mid-sized Depth-Anything V2-
+Base, achieving a relative MPJPE improvement of 7.2% over the depth-
+
+                                                                   23
+Table 8: Ablation study on AMS module design: Comparison with alternative attention
+and sampling strategies. The proposed Adaptive Multi-Sampling significantly outper-
+forms both adaptive feature selection and attention mechanisms baselines by mitigating
+background noise and robustness to 2D pose errors.
+
+                      Module Variant                     MPJPE (↓)
+                      Adaptive feature selection           49.8
+                      Cross-attention                      45.3
+                      Single sampling + Self-attention     44.2
+                      Single sampling only                 40.2
+                      AMS (Ours)                           38.4
+
+
+
+independent baseline, demonstrating that UDE’s feature refinement com-
+pensates for imperfect depth priors. This benefits resource-constrained de-
+ployments preferring lightweight estimators, confirming our architecture con-
+verts depth errors into learnable features rather than propagation pathways,
+as further validated in Figure 10.
+   Ablation Study on AMS. We evaluate our Adaptive Multi-Sampling
+(AMS) module against conventional approaches in Table 8.                  Four base-
+lines are compared: (1) Adaptive feature selection from global depth maps
+(49.8mm MPJPE), suffering from background noise; (2) Cross-attention with
+2D pose queries (45.3mm), similarly noise-sensitive; (3) Single sampling +
+self-attention (44.2mm), reducing noise but vulnerable to 2D pose errors;
+(4) Plain single sampling (40.2mm), improved but still error-sensitive. Our
+AMS achieves superior performance (38.4mm) via iterative corrective sam-
+pling that dynamically refines features while maintaining robustness to im-
+perfect 2D inputs, demonstrating substantial gains over both attention-based
+and sampling-based methods.
+   Resilience to Controlled Depth Noise.                      We evaluate robustness
+against realistic depth imperfections: motion blur and pixel loss. To sim-
+ulate motion artifacts, a Gaussian blur is applied to random regions (20%
+image width) with varying kernels (3×3, 5×5, 7×7). Table 9 shows sta-
+
+                                           24
+Table 9: Robustness analysis under motion blur noise. Our method maintains stable
+MPJPE across all blur levels.
+                         Blur Kernel Size MPJPE (↓) MPJVE (↓)
+                         No noise           38.4       7.43
+                         3×3                38.4       7.46
+                         5×5                38.4       7.57
+                         7×7                38.5       7.83
+
+
+
+Table 10: Robustness analysis under missing data noise. The method demonstrates re-
+markable resilience to data loss while maintaining MPJPE.
+                        Missing Probability MPJPE (↓) MPJVE (↓)
+                        No noise              38.4      7.43
+                        0.1%                  38.4      7.68
+                        0.5%                  38.6      8.62
+                        1%                    38.7      9.67
+
+
+
+ble MPJPE (38.4-38.5mm) and marginal MPJVE increase (7.43-7.83mm),
+confirming motion distortion invariance. Examples of these simulated per-
+turbations are shown in Figure 5 (top row). To evaluate robustness against
+corrupted depth data, we randomly zero 0.1-1% of depth pixels. Figure 5
+(bottom row) illustrates examples of the pixel loss patterns. Table 10 shows
+maintained MPJPE at 1‰ loss (38.4mm) and controlled degradation at 1%
+(38.7mm), with predictable MPJVE progression (7.43-9.67mm).
+   Our evaluation establishes the method’s dual strength: while achieving
+optimal performance with precise depth estimators, it maintains remarkable
+robustness under practical noise conditions through uncertainty-aware depth
+enhancement, ensuring reliable real-world applicability.
+   Training Stability and Uncertainty Analysis. To address the stabil-
+ity of our uncertainty estimation during training, we monitor the log-variance
+sj throughout optimization. Figure 6 shows that both depth prediction er-
+ror and uncertainty estimates exhibit stable co-evolution across epochs. The
+mean depth difference consistently decreases, indicating improved pose accu-
+racy, while uncertainty estimates decrease in a tightly coupled manner. This
+
+                                         25
+                                                                     clean               3×3 kernel                                        5×5 kernel              7×7 kernel
+
+             Motion Blur
+             Simulation
+
+
+                                                                     clean                0.1% loss                                        0.5% loss                    1% loss
+
+
+             Pixel Loss
+             Simulation
+
+
+
+
+Figure 5: Visual examples of synthetic noise applied to depth maps for robustness evalu-
+ation. (Top row) Progressive motion blur using 3 × 3, 5 × 5, and 7 × 7 Gaussian kernels.
+(Bottom row) Progressive random pixel loss at rates of 0.1%, 0.5%, and 1%.
+                                                                      Depth Difference                                                              Uncertainty
+                                                                                                                                8.25
+                 Mean Depth Diff (Mean over Joints)
+
+
+
+
+                                                      0.18                                                                      8.00
+                                                                                                   S Value (Mean over Joints)
+
+
+
+
+                                                                                                                                7.75
+                                                      0.17                                                                      7.50
+                                                                                                                                7.25
+                                                      0.16                                                                      7.00
+                                                                                                                                6.75
+                                                      0.15                                                                      6.50
+                                                                                                                                6.25
+                                                      0.14
+                                                             0   5    10   15      20    25   30                                       0   5   10      15     20   25     30
+                                                                           Epoch                                                                      Epoch
+
+
+Figure 6: Training dynamics showing stable co-evolution of prediction error and uncer-
+tainty. Both metrics decrease smoothly and remain bounded, demonstrating effective
+uncertainty learning without divergence or collapse.
+
+parallel decline confirms that our uncertainty effectively tracks actual error
+as a meaningful confidence measure. Crucially, the log-variance s remains
+within a stable and bounded range throughout the entire training.
+
+4.5. Qualitative Analysis.
+
+   Comparisions on Human3.6M dataset. Figure 7 presents quali-
+tative comparisons on Human3.6M with the fusion-based CA-PF [9]. Our
+method produces more realistic 3D poses by leveraging depth-aware repre-
+sentations, which successfully resolve depth ambiguities and capture subtle
+anatomical details that are missed by purely planar fusion methods.
+   Specifically, In Row 1, we correctly reconstruct the arm’s extended 3D
+
+                                                                                                   26
+

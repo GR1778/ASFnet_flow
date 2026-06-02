@@ -1,0 +1,60 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Large data files (too big for GitHub)
+*.npy
+*.npz
+*.pkl
+*.h5
+*.hdf5
+*.bin
+
+# Model checkpoints & pretrained weights
+*.pth
+*.pt
+*.ckpt
+*.tar.gz
+*.tgz
+checkpoint/
+checkpoints/
+
+# Data directories (Human3.6M dataset)
+data/
+
+# Analysis output / experiment runs
+depth_analysis/
+depth_analysis_fd_parts/
+depth_analysis_fd_pose/
+depth_analysis_fd_smoke/
+depth_analysis_rigorous/
+debug_vis/
+dlst_motivation_*/
+dlst_visualizations_*/
+dlst_training_signal_current/
+output/
+tmp_asfnet_figs/
+imagegen/
+
+# Compressed archives
+*.zip
+*.rar
+*.7z
+
+# Generated images (visualizations, figures)
+*.png
+*.jpg
+*.jpeg
+
+# PDFs (papers)
+*.pdf
+
+# IDE & OS
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store

@@ -1,0 +1,304 @@
+                Input       Stage 1        CA-PF [22]    Ours       Ground Truth
+
+
+
+
+Figure 7: Qualitative comparison between our method and the state-of-the-art fusion
+method CA-PF [9] on Human3.6M dataset. Green circles highlight key improvements:
+(a) Our method alleviates depth ambiguity in the right arm (Row 1), correctly inferring
+its extended 3D position rather than erroneous bending; (b) Precise localization of the
+occluded right wrist at the waist through depth gradient analysis (Row 2); (c) Recovery of
+forearm position from depth discontinuity between right arm and torso (Row 3). Explicit
+depth feature modeling enables physically plausible estimations where planar features fail.
+
+configuration, while CA-PF bends it erroneously.                In Row 2, even with
+incorrect 2D inputs, our method locates the wrist accurately by interpreting
+the depth gradient at the left waist (green circle)—a distinction planar fusion
+misses, causing CA-PF to place it near the shoulder. Row 3 further shows
+that sharp depth discontinuities between the right arm and torso enable
+accurate forearm reconstruction under occlusion, whereas CA-PF yields an
+implausible elbow. By modeling robust depth features, our method resolves
+3D relationships that remain ambiguous in 2D cues and planar fusion.
+    Comparisons on Wild Images. Figure 8 validates our method’s gen-
+eralization on in-the-wild images versus CA-PF [9]. ow 1 demonstrates our
+method’s ability to resolve depth ambiguity in overlapping arms, accurately
+estimating their relative distances—a task CA-PF fails at. In Row 2, our
+model leverages the depth discontinuity at the occluded elbow (green circle)
+to infer a plausible pose, while CA-PF’s limited planar reasoning causes it to
+fuse the wrist with the torso. Row 3 confirms robustness in cluttered scenes,
+where our method maintains consistent depth perception. By integrating
+
+
+                                            27
+                   Input             Stage 1          CA-PF [22]       Ours
+
+
+
+
+Figure 8: Qualitative comparison on noisy in-the-wild data between our method and
+the state-of-the-art fusion method CA-PF [9]. Green circles highlight key advantages: (a)
+reliable depth ordering of left/right arms (Row 1); (b) precise differentiation of elbow-body
+depth relationships under complex self-occlusion scenarios (Row 2); (c) consistent depth
+perception in cluttered scenes (Row 3).
+
+depth features with 2D poses, our approach overcomes the limitations of
+pure planar fusion, ensuring effectiveness across diverse cases.
+    Visual analysis of Adaptive Multi-Sampling. Figure 9 visualizes
+the sampling points learned by our Adaptive Multi-Sampling (AMS) mod-
+ule. The heatmap in the blue box provides an overview, showing that each
+head adaptively learns distinct sampling strategies from the depth map. This
+enables the module to flexibly focus on pose-relevant regions, effectively com-
+pensating for input noise (as evidenced by the inputs and result in the blue
+box) and learning more comprehensive, context-aware features.
+    Visual analysis of Uncertainty-aware Depth Enhancer. Figure 10
+validates our UDE against an ablated variant. In Row 1, UDE suppresses
+unreliable depth features at a motion-missed ankle to predict a natural pose,
+while the baseline incorrectly places it vertically downward. In Row 2, UDE
+corrects a false knee bend induced by occlusion, recovering the leg’s true con-
+figuration. This confirms that our uncertainty-based feature enhancement is
+key to robust performance in challenging in-the-wild scenarios.
+
+
+                                               28
+                                                                        Output
+
+
+                   : Ground truth
+
+
+
+
+                   : Detected by CPN
+
+
+
+
+                                           Adaptive Multi-Sampling
+
+                             Head 1    Head 2                  Head 3    Head 4
+
+
+
+
+Figure 9: Visual analysis of the AMS module. Visualization of sampling points
+learned by each head in the Adaptive Multi-Sampling (AMS) module. The heatmaps
+on the depth map in the blue box show the learned sampling points, where brighter
+regions indicate higher weights. Each head learns to focus on different regions relevant
+to the human pose. As illustrated, although the input 2D pose contains incorrect wrist
+information, head 2 learns to attend to the true wrist joint region, effectively suppressing
+noise from the erroneous 2D detection. This enables the extraction of reliable depth
+features and contributes to more accurate 3D pose estimation. The results demonstrate
+that AMS can dynamically adjust sampling behavior, focusing on informative regions, not
+limited by the estimated 2D pose.
+
+ To further quantitatively validate that our learned uncertainty reflects es-
+timation reliability, we conducted a comprehensive correlation analysis on
+the Human3.6M validation set between predicted uncertainty and actual
+depth errors. As shown in Figure 11 (per-joint-type averages), we observe
+a clear positive correlation between joint uncertainty and depth estima-
+tion error across all joints. The results reveal distinctive regional patterns:
+body parts with typically larger depth errors—namely the upper and lower
+limbs—exhibit remarkably strong positive correlations (r=0.992 and r=0.988,
+respectively). This confirms that our uncertainty metric faithfully represents
+the reliability of joint depth features, particularly in challenging limb re-
+gions. Furthermore, the large-scale scatter plot in Figure 12 (17,000 individ-
+ual joints) statistically reinforces this overall positive trend (r = 0.229, p <
+0.001). The dense concentration of points in the lower-triangular region pro-
+vides direct visual and statistical evidence that higher predicted uncertainty
+
+                                                    29
+Figure 10: Visual analysis of the UDE module. Qualitative comparison between
+our full method, which incorporates Uncertainty-aware Depth Enhancer (UDE), and its
+ablated version (without UDE) in challenging depth-error scenarios of in-the-wild data.
+Green circles highlight critical improvements enabled by UDE: (a) Recovery of the right
+ankle under fast motion (Row 1), where missing depth data misleads the baseline into
+predicting an unnatural vertical right calf, while UDE avoids the interference of erroneous
+depth information; (b) Correction of knee bending artifacts caused by depth discontinu-
+ities from net-edge occlusion (Row 2), where UDE filters corrupted depth cues to restore
+biomechanically valid pose.
+
+consistently corresponds to larger depth errors.
+    Visual analysis of Multimodal Interaction Transformer. We vi-
+sualized the attention maps from the Multimodal Interaction Transformer of
+our proposed model. Each attention map extracted at every joint is a 6 ×
+6 matrix, representing the weight distribution assigned by the self-attention
+mechanism to the multimodal features. In Figure 13, each joint focuses on
+different feature maps, and the Multimodal Interaction Transformer is capa-
+ble of capturing diverse features from the multimodal inputs for each joint.
+
+4.6. Modularity and Generalizability Analysis.
+
+    We evaluate the modularity of our AMS and UDE modules by integrat-
+ing them into multiple state-of-the-art frameworks, demonstrating their ef-
+fectiveness as plug-and-play components that improve performance across
+architectures. As shown in Table 11, our modules bring consistent gains
+to diverse backbones. For single-frame GraphMLP, MPJPE drops 8.9mm to
+39.1mm. for multi-frame MotionAGFormer-XS (27 frames), it improves from
+45.1mm to 42.6mm. Notably, these improvements are achieved while AMS
+
+
+                                            30
+                                  250
+                                                       Joint Uncertainty vs Depth Error Correlation
+                                             Overall trend (r=0.438)             Right Wrist
+                                             Upper Limb                                                                                Human3.6M Skeleton
+                                  225        Upper Limb trend (r=0.992)
+                                             Lower Limb
+                                                                               Left Wrist                             Right Ankle   (Color-coded by Body Parts)
+                                                                                                                      Left Ankle                      Head
+                                             Lower Limb trend (r=0.988) Right Elbow
+                                  200        Torso                                                Left Knee                                         Neck
+                                                                        Left Elbow
+                                                                                                         Right Knee
+             Joint Depth Error (mm)
+
+                                  175                                                                                                    Right Shoulder Left Shoulder
+                                                                                                                                                     Thorax
+                                                    Head                                                                               Right Elbow Spine     Left Elbow
+                                  150
+                                                                                                                                                    Hip
+                                                                                 Right Shoulder                                       Right Wrist               Left Wrist
+                                                                      Neck
+                                  125                                         Left Shoulder                                                   Right Hip Left Hip
+
+                                  100
+                                                                                                                                             Right Knee Left Knee
+                                                                                   Thorax
+                                      75                                     Right Hip                                                       Right Ankle Left Ankle
+                                                                                Left Hip
+                                      50                                           Spine
+
+                                              6.0               6.2                    6.4            6.6              6.8
+                                                                         Joint Uncertainty
+
+
+Figure 11: Correlation analysis between mean joint uncertainty (s) and mean coarse joint
+depth (µ) error on the Human3.6M validation set. (Left) Scatter plot showing the cor-
+relation of joint uncertainty and joint depth error across all joints. (Right) Human3.6M
+skeleton colored by body parts. The observed positive correlation, particularly in high-
+error limb joints, validates that our learned uncertainty reflects depth feature reliability.
+
+
+Table 11: Performance improvement by integrating our (AMS + UDE) modules into
+different lifting architectures on Human3.6M dataset. T denotes the number of input
+frames. MPJPE and PA-MPJPE are reported in millimeters.
+                                           Method                                                                 T MPJPE(↓) PA-MPJPE (↓)
+                                           GraphMLP [8], PR’24                                                    1           48.0                         38.4
+                                           + (AMS + UDE) (Ours)                                                   1           39.1                         32.4
+                                           MotionAGFormer-XS [38], WACV’24 27                                                 45.1                         36.9
+                                           + (AMS + UDE) (Ours)            27                                                 42.6                         35.3
+
+
+
+and UDE maintain a purely frame-wise processing logic, without any tempo-
+ral extension. This demonstrates our generalizability in effectively mitigating
+fundamental issues of 2D pose noise and depth ambiguity.
+
+4.7. Analysis in Multi-Person Occlusion Scenarios.
+
+    To analyze the role of AMS and UDE in complex multi-person scenarios
+and clarify the limitations of our method, we conduct a qualitative study on
+two in-the-wild occlusion cases (Figure 14). In the moderate occlusion case
+(first row), Arm occlusion causes erroneous 2D thorax-spine pose. Without
+AMS (Ours w/o AMS&UDE), the model yields a hunched pose. AMS cor-
+rects it by multi-sampling to distinguish the depth difference between the
+
+                                                                                                      31
+Figure 12: Correlation between joint uncertainty and depth error at the individual-joint
+level on the Human3.6M validation set. Scatter plot showing the correlation for 17,000
+individual joints (sampled from 1,000 poses). Statistically significant positive correlation
+(r=0.229, p¡0.001) is observed, with dense concentration in the lower-triangular region,
+confirming that higher uncertainty indicates larger errors.
+
+
+
+
+Figure 13: Visualization of the attention maps from the Multimodal Interaction Trans-
+former in our model. It illustrates that the self-attention mechanism systematically assigns
+a weight distribution to multimodal features for each joint, leading to exploit complemen-
+tary multimodal cues, all of which contribute to the inference. We randomly select six
+joints as an example; brighter colors indicate higher attention scores.
+
+thorax and the occluding arm, recovering natural pose (Ours w/o UDE and
+Ours). In the severe occlusion case (second row), the left leg of the rear
+person is heavily occluded, making both 2D pose and depth features unreli-
+able. AMS alone fails due to distorted depth; UDE down-weights unreliable
+depth and integrates context, yielding plausible pose (Ours)—though the
+precise extension of the leg remains inaccurate. Even with both modules,
+severe occlusion prevents precise limb recovery—single-frame spatial context
+encounters an information bottleneck when 2D and depth cues are nearly
+
+                                            32
+            Input           Stage 1    Ours(w/o AMS&UDE)   Ours(w/o UDE)   Ours
+
+
+
+
+Figure 14: Qualitative results under multi-person occlusion. Top: AMS corrects
+2D pose errors from arm occlusion, resolving the hunched posture in ”w/o AMS&UDE.”
+Bottom: UDE mitigates depth distortion from leg occlusion, improving leg pose in ”Ours”
+over ”w/o UDE.” This case also reveals the inherent limitation of single-frame methods
+under severe occlusion, where visual cues (both 2D pose and depth) are nearly missing for
+the occluded limb.
+
+
+absent.
+
+4.8. Temporal Extension of the Proposed Method.
+
+    To demonstrate extensibility, we simply adapt our framework to multi-
+frame input by adding a standard Temporal Transformer (commonly used in
+multi-frame methods like PoseFormer [35]) after the Spatial Transformer, us-
+ing T = 27 frames. Crucially, both the AMS and UDE modules remain single-
+frame based without any temporal extension. As shown in Table 12, this
+extension achieves 37.6mm MPJPE, outperforming our single-frame baseline
+and previous state-of-the-art methods—even those using longer sequences
+(T = 243). This validates our framework’s compatibility with temporal
+modeling, forming a competitive multi-frame pipeline.
+ Future Work Our multi-frame extension confirms the temporal compati-
+bility of our framework, paving the way for deeper integration. Future work
+will develop a Temporal-Adaptive Multi-Sampling (T-AMS) module to sam-
+ple spatiotemporally coherent features from joint trajectories, and a Tempo-
+ral Uncertainty-aware Depth Enhancement (T-UDE) module to fuse uncer-
+tainty estimates across frames. These advancements are expected to deliver
+
+                                           33
+Table 12: Multi-frame 3D pose estimation results on Human3.6M under protocol 1. 2D
+poses are detected by CPN. ‘T’ denotes the input sequence length. Best results are in
+bold, second-best are underlined.
+                       Method                   Venue  MPJPE (↓)
+                       PoseFormer [35] (T=81)  ICCV’21   44.3
+                       GraphMLP [8] (T=243)     PR’24    43.8
+                       STGFormer [39] (T=243)   PR’25    40.3
+                       PSTR [28] (T=243)      TCSVT’25   38.8
+                       Spectral [40] (T=243)    PR’26    37.7
+                       ASFnet (Ours) (T=1)        -      38.4
+                       ASFnet (Ours) (T=27)       -      37.6
+
+
+significant gains in accuracy and temporal stability.
+
+
+5. Conclusion
+
+   This paper presents ASFnet, a novel depth-aware architecture for monoc-
+ular RGB-based 3D human pose estimation that explicitly models robust
+depth features to mitigate depth ambiguity.            By introducing the Adap-
+tive Multi-Sampling (AMS) module, our approach effectively extracts pose-
+relevant depth information while reducing dependence on noisy 2D pose esti-
+mates. Additionally, the Uncertainty-aware Depth Enhancer (UDE) further
+refines depth features by adaptively estimating and suppressing uncertainty-
+driven noise. The fusion of these enhanced depth cues with 2D pose in-
+formation via a Transformer regressor enables stable 3D pose estimation.
+Extensive evaluations on the Human3.6M and MPI-INF-3DHP benchmarks
+demonstrate that ASFnet achieves competitive performance compared to
+state-of-the-art methods, highlighting the potential of explicit depth mod-
+eling for advancing monocular 3D human pose estimation.
+   Despite the effectiveness of our approach, we acknowledge its limitations.
+Although our method effectively alleviates depth ambiguity in monocular
+3D human pose estimation, its current single-frame design inherently limits
+its capability to handle severe inter-person occlusions commonly found in
+multi-person scenarios.
+
+                                         34
+

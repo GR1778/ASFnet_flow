@@ -1,0 +1,85 @@
+{
+  "scope": "Non-UDE diagnostics for ASFnet/DGLifting",
+  "paper_assumptions_checked": [
+    "AMS should iteratively refine sampling around 2D pose guided locations.",
+    "Out-of-range grid_sample coordinates should produce zero-valued features.",
+    "Depth and image features should be aligned to pose without stale forward state.",
+    "Forward calls should not mutate caller tensors or feature lists."
+  ],
+  "severity_counts": {
+    "high": 5,
+    "medium": 3
+  },
+  "boundary_sampling_probe": {
+    "out_of_bounds_border_value": 15.0,
+    "out_of_bounds_zeros_value": 5.859375,
+    "in_bounds_border_value": 7.5,
+    "in_bounds_zeros_value": 7.5
+  },
+  "findings": [
+    {
+      "severity": "high",
+      "category": "forward_side_effect",
+      "issue": "DGLifting.forward mutates features_list_hr in-place",
+      "evidence": "mvn/models/DGLifting.py appends depth_images directly to features_list_hr.",
+      "why_it_matters": "A reused feature list silently keeps stale depth tokens. This can make repeated probes or ablations compare the wrong depth map.",
+      "suggested_test_or_fix": "Use features_list_hr = list(features_list_hr) + [depth_images], then add a regression test that list length stays unchanged after forward."
+    },
+    {
+      "severity": "high",
+      "category": "ams_sampling",
+      "issue": "AMS uses border padding for refined sampling",
+      "evidence": "DGLifting.py DeformableBlock calls F.grid_sample(..., padding_mode='border', align_corners=True).",
+      "why_it_matters": "The paper says coordinates outside [-1, 1] yield zero-valued features. Border padding instead copies edge features, so large offsets can harvest border artifacts rather than being penalized.",
+      "suggested_test_or_fix": "Change refined AMS sampling to padding_mode='zeros' or explicitly justify border behavior with an out-of-bound sampling test."
+    },
+    {
+      "severity": "high",
+      "category": "coordinate_handling",
+      "issue": "DepthGuidedPose.forward normalizes crop coordinates in-place",
+      "evidence": "mvn/models/DGPose.py uses /= and -= on keypoints_2d_cpn_crop.",
+      "why_it_matters": "The training loop often passes clone(), but the model contract itself is unsafe. Reusing the same tensor across calls double-normalizes coordinates and breaks grid_sample alignment.",
+      "suggested_test_or_fix": "Clone inside DGPose.forward before normalization and add a test that caller input is unchanged."
+    },
+    {
+      "severity": "medium",
+      "category": "config_contract",
+      "issue": "Core AMS/fusion dimensions ignore config",
+      "evidence": "DGLifting.__init__ hard-codes embed_dim_ratio=128, base_dim=32, depth=4.",
+      "why_it_matters": "The paper reports Cfuse=128 and 4 AMS iterations, but hard-coding makes ablations and replacement modules harder to compare fairly across configs.",
+      "suggested_test_or_fix": "Read these values from config with paper defaults as fallbacks, then test a small non-default config can instantiate."
+    },
+    {
+      "severity": "medium",
+      "category": "training_objective",
+      "issue": "Depth log-variance is not clipped as described in the paper",
+      "evidence": "mvn/models/loss.py has no clamp for s before exp(-s).",
+      "why_it_matters": "Although this is tied to the auxiliary depth head, it affects training stability for any replacement depth module that still emits supervised depth.",
+      "suggested_test_or_fix": "Clamp s to [-9, 9] in the depth auxiliary loss and add an extreme-s test that loss stays finite."
+    },
+    {
+      "severity": "medium",
+      "category": "depth_representation",
+      "issue": "Depth branch uses a shallow conv on scalar depth maps",
+      "evidence": "DGLifting.py maps [B,H,W] depth to Cfuse with one 3x3 Conv2d.",
+      "why_it_matters": "The paper denotes D as a depth feature representation. A single conv may under-represent local discontinuities that AMS is supposed to exploit.",
+      "suggested_test_or_fix": "Use a depth-edge synthetic probe: perturb a narrow limb-like depth discontinuity and verify depth tokens change more near affected joints than far joints."
+    },
+    {
+      "severity": "high",
+      "category": "forward_side_effect",
+      "issue": "Synthetic probe confirmed feature-list mutation",
+      "evidence": "features_list length changed from 4 to 5 after one DGLifting.forward call.",
+      "why_it_matters": "A second call with the same list will contain old embedded depth and can ignore the new appended depth in parts of AMS.",
+      "suggested_test_or_fix": "Make the list append functional, then rerun this script and expect unchanged length."
+    },
+    {
+      "severity": "high",
+      "category": "forward_side_effect",
+      "issue": "Reusing feature lists can crash DGLifting.forward",
+      "evidence": "Second forward with the same feature list raised IndexError: index 5 is out of bounds for dimension 1 with size 5",
+      "why_it_matters": "This confirms the feature-list append is not just a measurement artifact; it can break repeated calls and any wrapper that caches/reuses backbone features.",
+      "suggested_test_or_fix": "Make DGLifting.forward copy the list before appending depth, then rerun this script and expect no exception."
+    }
+  ]
+}

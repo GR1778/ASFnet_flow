@@ -1,0 +1,128 @@
+{
+  "config": "experiments/human36m/human36m_single_dlst.yaml",
+  "checkpoint": "logs/ConPose@07.05.2026-10:46:00/checkpoints/best_epoch.bin",
+  "num_samples": 1024,
+  "selected_indices_start": 1222,
+  "selected_indices_end": 543103,
+  "metrics": {
+    "num_stages": 5,
+    "stage_step_mean": [
+      2.029090166091919,
+      0.6428322792053223,
+      0.5468862056732178,
+      0.3579294979572296
+    ],
+    "stage_norm_mean": [
+      0.8063262104988098,
+      2.320432424545288,
+      2.3385794162750244,
+      2.29963755607605,
+      2.271463394165039
+    ],
+    "signal_means": {
+      "stage_disagreement": 0.8131521344184875,
+      "first_last_shift": 2.0324158668518066,
+      "late_shift": 0.3579297959804535,
+      "final_to_consensus": 0.6490979194641113
+    },
+    "target_means": {
+      "joint_mpjpe_mm": 40.48109436035156,
+      "joint_depth_error_mm": 30.329971313476562,
+      "dlst_order_error_rate": 0.04391737556446311
+    },
+    "correlations": {
+      "stage_disagreement": {
+        "joint_mpjpe_mm": {
+          "pearson": 0.12469423735705162,
+          "spearman": 0.16734613810620894,
+          "low_signal_target_mean": 32.65229352296549,
+          "high_signal_target_mean": 46.65407454534708,
+          "high_minus_low": 14.001781022381586
+        },
+        "joint_depth_error_mm": {
+          "pearson": 0.16573176998913466,
+          "spearman": 0.20415896344751888,
+          "low_signal_target_mean": 22.877354639168033,
+          "high_signal_target_mean": 38.56057305156034,
+          "high_minus_low": 15.683218412392307
+        },
+        "dlst_order_error_rate": {
+          "pearson": 0.14716292556610153,
+          "spearman": 0.09879802419837809,
+          "low_signal_target_mean": 0.03688588429799367,
+          "high_signal_target_mean": 0.058864218400063985,
+          "high_minus_low": 0.021978334102070313
+        }
+      },
+      "first_last_shift": {
+        "joint_mpjpe_mm": {
+          "pearson": 0.19054709887687585,
+          "spearman": 0.2203223365751097,
+          "low_signal_target_mean": 29.036298495785825,
+          "high_signal_target_mean": 51.31349876021747,
+          "high_minus_low": 22.277200264431645
+        },
+        "joint_depth_error_mm": {
+          "pearson": 0.22807860075917896,
+          "spearman": 0.25538479759231675,
+          "low_signal_target_mean": 19.813863448055653,
+          "high_signal_target_mean": 41.72825468284324,
+          "high_minus_low": 21.91439123478759
+        },
+        "dlst_order_error_rate": {
+          "pearson": 0.14141829038497375,
+          "spearman": 0.11865865793540326,
+          "low_signal_target_mean": 0.03557390800325083,
+          "high_signal_target_mean": 0.059890471112323124,
+          "high_minus_low": 0.024316563109072292
+        }
+      },
+      "late_shift": {
+        "joint_mpjpe_mm": {
+          "pearson": 0.03794949861892917,
+          "spearman": 0.03702676630149707,
+          "low_signal_target_mean": 41.95844369180336,
+          "high_signal_target_mean": 43.622097119825945,
+          "high_minus_low": 1.6636534280225845
+        },
+        "joint_depth_error_mm": {
+          "pearson": 0.061376860237674746,
+          "spearman": 0.06887072351418756,
+          "low_signal_target_mean": 30.637401479797145,
+          "high_signal_target_mean": 34.20285465847701,
+          "high_minus_low": 3.5654531786798636
+        },
+        "dlst_order_error_rate": {
+          "pearson": 0.12475916189128164,
+          "spearman": 0.0522326405453533,
+          "low_signal_target_mean": 0.04318817607535438,
+          "high_signal_target_mean": 0.05539252988127069,
+          "high_minus_low": 0.012204353805916314
+        }
+      },
+      "final_to_consensus": {
+        "joint_mpjpe_mm": {
+          "pearson": 0.09845914489722385,
+          "spearman": 0.13586381256497979,
+          "low_signal_target_mean": 36.66003260513603,
+          "high_signal_target_mean": 46.96052766599528,
+          "high_minus_low": 10.300495060859248
+        },
+        "joint_depth_error_mm": {
+          "pearson": 0.11706932633172205,
+          "spearman": 0.14355057837097882,
+          "low_signal_target_mean": 26.73794259033457,
+          "high_signal_target_mean": 36.770638410947015,
+          "high_minus_low": 10.032695820612446
+        },
+        "dlst_order_error_rate": {
+          "pearson": 0.15364990429850187,
+          "spearman": 0.0711083965972954,
+          "low_signal_target_mean": 0.0397770141163983,
+          "high_signal_target_mean": 0.06022740089261229,
+          "high_minus_low": 0.02045038677621399
+        }
+      }
+    }
+  }
+}
